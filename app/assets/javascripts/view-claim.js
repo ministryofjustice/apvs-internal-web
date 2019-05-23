@@ -101,6 +101,12 @@ function totalApproved () {
   }
 
   $('.claim-expense-approvedCostText').text('£' + (approvedCost + manuallyProcessed).toFixed(2))
+  // if (approvedCost + manuallyProcessed > 250) {
+  //   $('#approve').attr("checked", false)
+  //   $('#accept-input-label').hide()
+  // } else {
+  //   $('#accept-input-label').show()
+  // }
 }
 
 function showClosedClaimActionSection (id) {

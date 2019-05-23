@@ -1,7 +1,7 @@
 {% if not displayHelper.getClaimStatusClosed(Claim['Status'], Claim['IsAdvanceClaim'], Claim['DateOfJourney']) and unlock %}
 <div id="decision" class="form-group {% if errors['decision'][0] %} error {% endif %}">
   <fieldset id='reason' >
-    <label for="approve" class="block-label inline" data-target="accept-input">
+    <label for="approve" class="block-label inline" data-target="accept-input" id="accept-input-label">
       <input type="radio" name="decision" value="{{ claimDecisionEnum.APPROVED }}" id="approve" {% if claimDecision['decision'] == claimDecisionEnum.APPROVED %} checked {% endif %}>
       <span>Approve</span>
     </label>
