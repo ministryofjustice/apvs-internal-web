@@ -6,6 +6,11 @@
       <span>Approve</span>
     </label>
 
+    <label for="referToSeniorManager" class="block-label inline" data-target="refer-input" id="refer-input-label">
+      <input type="radio" name="decision" value="{{ claimDecisionEnum.APPROVED }}" id="referToSeniorManager" {% if claimDecision['decision'] == claimDecisionEnum.APPROVED %} checked {% endif %}>
+      <span>Refer to Senior Manager</span>
+    </label>
+
     <label for="request" class="block-label inline" data-target="request-input">
       <input type="radio" name="decision" value="{{ claimDecisionEnum.REQUEST_INFORMATION }}" id="request" {% if claimDecision['decision'] == claimDecisionEnum.REQUEST_INFORMATION %} checked {% endif %}>
       <span>Request information</span>
@@ -37,6 +42,16 @@
       </div>
 
       <input type="submit" class="button" name="approve" id="approve-submit" value="Send approval email">
+    </div>
+
+    <div class="panel {% if claimDecision['decision'] != claimDecisionEnum.APPROVED %}js-hidden{% endif %}" id="refer-input">
+
+      <div class="form-group">
+        <label class="form-label-bold" for="additional-info-refer">Note</label>
+        <textarea type="text" class="form-control" id="additional-info-refer" name="additionalInfoRefer" maxlength="2000">{{ claimDecision['additionalInfoRefer'] }}</textarea>
+      </div>
+
+      <input type="submit" class="button" name="referToSeniorManager" id="referToSeniorManager-submit" value="Refer to Senior Manager">
     </div>
 
     <div class="panel {% if claimDecision['decision'] != claimDecisionEnum.REQUEST_INFORMATION %}js-hidden{% endif %}" id="request-input">

@@ -101,12 +101,17 @@ function totalApproved () {
   }
 
   $('.claim-expense-approvedCostText').text('£' + (approvedCost + manuallyProcessed).toFixed(2))
-  // if (approvedCost + manuallyProcessed > 250) {
-  //   $('#approve').attr("checked", false)
-  //   $('#accept-input-label').hide()
-  // } else {
-  //   $('#accept-input-label').show()
-  // }
+  if (approvedCost + manuallyProcessed > 250) {
+    $('#accept-input-label').removeClass('selected')
+    $('#accept-input-label').hide()
+    $('#accept-input').addClass('js-hidden')
+    $('#refer-input-label').show()
+  } else {
+    $('#refer-input-label').removeClass('selected')
+    $('#refer-input-label').hide()
+    $('#refer-input').addClass('js-hidden')
+    $('#accept-input-label').show()
+  }
 }
 
 function showClosedClaimActionSection (id) {
