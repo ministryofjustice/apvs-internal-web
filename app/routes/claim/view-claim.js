@@ -222,6 +222,7 @@ function submitClaimDecision (req, res, claimExpenses) {
             req.body.additionalInfoApprove,
             req.body.additionalInfoRequest,
             req.body.additionalInfoReject,
+            req.body.additionalInfoRefer,
             req.body.nomisCheck,
             req.body.dwpCheck,
             req.body.visitConfirmationCheck,

@@ -7,7 +7,7 @@
     </label>
 
     <label for="referToSeniorManager" class="block-label inline" data-target="refer-input" id="refer-input-label">
-      <input type="radio" name="decision" value="{{ claimDecisionEnum.APPROVED }}" id="referToSeniorManager" {% if claimDecision['decision'] == claimDecisionEnum.APPROVED %} checked {% endif %}>
+      <input type="radio" name="decision" value="{{ claimDecisionEnum.PENDING_SENIOR_MANAGER }}" id="referToSeniorManager" {% if claimDecision['decision'] == claimDecisionEnum.PENDING_SENIOR_MANAGER %} checked {% endif %}>
       <span>Refer to Senior Manager</span>
     </label>
 

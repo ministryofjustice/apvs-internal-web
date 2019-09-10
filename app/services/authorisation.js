@@ -36,7 +36,18 @@ function isCaseworker (req) {
   }
 }
 
+function isAdminApprover (req) {
+  isAuthenticated(req)
+
+  if (!req.user.roles.includes('adminApprover')) {
+    var error = new Error('unauthorised')
+    error.status = 403
+    throw error
+  }
+}
+
 module.exports.isAuthenticated = isAuthenticated
 module.exports.isAdmin = isAdmin
 module.exports.isSscl = isSscl
 module.exports.isCaseworker = isCaseworker
+module.exports.isAdminApprover = isAdminApprover

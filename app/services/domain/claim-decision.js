@@ -13,6 +13,7 @@ class ClaimDecision {
                additionalInfoApprove,
                additionalInfoRequest,
                additionalInfoReject,
+               additionalInfoRefer,
                nomisCheck,
                dwpCheck,
                visitConfirmationCheck,
@@ -36,6 +37,9 @@ class ClaimDecision {
         this.note = additionalInfoRejectManual
         noteId = 'additional-info-reject-manual'
       }
+    } else if (this.decision === claimDecisionEnum.PENDING_SENIOR_MANAGER) {
+      this.note = additionalInfoRefer
+      noteId = 'additional-info-refer'
     } else {
       this.note = additionalInfoRequest
       noteId = 'additional-info-request'

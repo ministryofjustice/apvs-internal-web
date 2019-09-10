@@ -79,7 +79,7 @@ module.exports = function (app) {
         'email': 'test@test.com',
         'first_name': 'Andrew',
         'last_name': 'Adams',
-        'roles': ['caseworker', 'admin', 'sscl']
+        'roles': ['caseworker', 'admin', 'sscl', 'adminApprover']
       }
       next()
     })

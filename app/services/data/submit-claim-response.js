@@ -139,6 +139,8 @@ function sendClaimNotification (reference, eligibilityId, claimId, decision) {
     notificationType = tasksEnum.REJECT_CLAIM_NOTIFICATION
   } else if (decision === claimDecisionEnum.REQUEST_INFORMATION) {
     notificationType = tasksEnum.REQUEST_INFORMATION_CLAIM_NOTIFICATION
+  } else {
+    return Promise.resolve()
   }
 
   return insertTaskSendClaimNotification(notificationType, reference, eligibilityId, claimId)
