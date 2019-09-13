@@ -36,6 +36,11 @@ function isCaseworker (req) {
   }
 }
 
+function isAdminApproverNoError (req) {
+  isAuthenticated(req)
+  return req.user.roles.includes('adminApprover')
+}
+
 function isAdminApprover (req) {
   isAuthenticated(req)
 
@@ -51,3 +56,4 @@ module.exports.isAdmin = isAdmin
 module.exports.isSscl = isSscl
 module.exports.isCaseworker = isCaseworker
 module.exports.isAdminApprover = isAdminApprover
+module.exports.isAdminApproverNoError = isAdminApproverNoError

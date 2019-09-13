@@ -230,8 +230,8 @@ function submitClaimDecision (req, res, claimExpenses) {
             claimDeductions,
             req.body.isAdvanceClaim,
             rejectionReasonId,
-            req.body.additionalInfoRejectManual
-            )
+            req.body.additionalInfoRejectManual,
+            authorisation.isAdminApproverNoError(req))
           return SubmitClaimResponse(req.params.claimId, claimDecision)
             .then(function () {
               if (claimDecision.decision === claimDecisionEnum.APPROVED) {
@@ -315,7 +315,8 @@ function renderValues (data, req, error) {
     overpaidClaims: data.overpaidClaims,
     claimDecisionEnum: claimDecisionEnum,
     errors: error.validationErrors,
-    unlock: checkUserAssignment(req.user.email, data.claim.AssignedTo, data.claim.AssignmentExpiry)
+    unlock: checkUserAssignment(req.user.email, data.claim.AssignedTo, data.claim.AssignmentExpiry),
+    isAdminApprover: authorisation.isAdminApproverNoError(req)
   }
   if (data.rejectionReasons) {
     displayJson.rejectionReasons = data.rejectionReasons

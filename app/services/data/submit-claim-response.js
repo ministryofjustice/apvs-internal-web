@@ -119,6 +119,7 @@ function updateClaimExpense (claimExpenseResponse) {
 }
 
 function insertClaimEventForDecision (reference, eligibilityId, claimId, decision, note, caseworker) {
+  console.log(decision)
   const event = `CLAIM-${decision}`
   return insertClaimEvent(reference, eligibilityId, claimId, event, null, note, caseworker, false)
 }

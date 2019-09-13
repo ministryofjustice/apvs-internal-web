@@ -23,6 +23,9 @@ module.exports = function (status) {
     case 'REQUEST-INFORMATION':
       displayStatus = 'Information Requested'
       break
+    case 'PENDING-SENIOR-MANAGER':
+      displayStatus = 'Pending Senior Manager'
+      break
     default:
       displayStatus = status
       break

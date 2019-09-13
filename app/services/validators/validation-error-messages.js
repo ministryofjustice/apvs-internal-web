@@ -23,5 +23,6 @@ module.exports = {
   getIsValidFormat: function (displayName) { return `${displayName} must have valid format` },
   getIsLessThanLengthMessage: function (displayName, options) { return `${displayName} must be ${options.length} characters or shorter` },
   getIsIntegerFormat: function (displayName) { return `${displayName} must be a whole number` },
-  getValueIsTooLarge: function (displayName) { return `${displayName} value is too large for this field` }
+  getValueIsTooLarge: function (displayName) { return `${displayName} value is too large for this field` },
+  caseworkerIsNotAnAdminApprover: 'You are not authorised to approve this claim'
 }

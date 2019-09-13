@@ -137,6 +137,9 @@ function extractSearchCriteria (query) {
       case 'paid':
         claimStatus = 'paid'
         break
+      case 'pendingSM':
+        claimStatus = 'pendingSM'
+        break
     }
 
     searchCriteria.claimStatus = claimStatus

@@ -86,5 +86,9 @@ module.exports = {
   CLAIM_NOTE: {
     value: 'CLAIM-NOTE',
     displayName: 'Note'
+  },
+  CLAIM_PENDING_SENIOR_MANAGER: {
+    value: 'CLAIM-PENDING-SENIOR-MANAGER',
+    displayName: 'Referred to senior manager'
   }
 }

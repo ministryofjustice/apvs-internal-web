@@ -8,6 +8,7 @@ const statusFormatter = require('../claim-status-formatter')
 
 const APPROVED_STATUS_VALUES = [ claimStatusEnum.APPROVED.value, claimStatusEnum.APPROVED_ADVANCE_CLOSED.value, claimStatusEnum.APPROVED_PAYOUT_BARCODE_EXPIRED.value, claimStatusEnum.AUTOAPPROVED.value ]
 const IN_PROGRESS_STATUS_VALUES = [ claimStatusEnum.UPDATED.value, claimStatusEnum.REQUEST_INFORMATION.value, claimStatusEnum.REQUEST_INFO_PAYMENT.value ]
+const PENDING_SM_VALUE = 'PENDING-SENIOR-MANAGER'
 
 var countQuery
 var selectQuery
@@ -138,6 +139,9 @@ module.exports = function (searchCriteria, offset, limit, isExport) {
     } else if (searchCriteria.claimStatus === 'inProgress') {
       applyInProgressClaimStatusFilter(countQuery)
       applyInProgressClaimStatusFilter(selectQuery)
+    } else if (searchCriteria.claimStatus === 'pendingSM') {
+      applyPendingSMClaimStatusFilter(countQuery)
+      applyPendingSMClaimStatusFilter(selectQuery)
     } else {
       applyClaimStatusFilter(countQuery, searchCriteria.claimStatus)
       applyClaimStatusFilter(selectQuery, searchCriteria.claimStatus)
@@ -270,6 +274,10 @@ module.exports = function (searchCriteria, offset, limit, isExport) {
 
   function applyInProgressClaimStatusFilter (query) {
     query.whereIn('Claim.Status', IN_PROGRESS_STATUS_VALUES)
+  }
+
+  function applyPendingSMClaimStatusFilter (query) {
+    query.whereIn('Claim.Status', PENDING_SM_VALUE)
   }
 
   function applyPaidClaimStatusFilter (query) {

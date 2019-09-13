@@ -21,7 +21,8 @@ class ClaimDecision {
                claimDeductionResponses,
                isAdvanceClaim,
                rejectionReasonId,
-               additionalInfoRejectManual) {
+               additionalInfoRejectManual,
+               isAdminApprover) {
     this.caseworker = caseworker
     this.assistedDigitalCaseworker = assistedDigitalCaseworker
     this.rejectionReasonId = null
@@ -58,6 +59,7 @@ class ClaimDecision {
     })
     this.claimDeductionResponses = claimDeductionResponses
     this.isAdvanceClaim = isAdvanceClaim
+    this.isAdminApprover = isAdminApprover
     this.IsValid()
   }
 
@@ -118,6 +120,13 @@ class ClaimDecision {
     var total = 0.00
     total = totalExpenseCost - totalDeductionCost
 
+    if (total > 250) {
+      if (this.decision === claimDecisionEnum.APPROVED) {
+        if (!this.isAdminApprover) {
+          throw new ValidationError({'assisted-digital-caseworker': [ERROR_MESSAGES.caseworkerIsNotAnAdminApprover]})
+        }
+      }
+    }
     if (this.decision === claimDecisionEnum.APPROVED) {
       FieldValidator(total, 'total-approved-cost', errors)
         .isGreaterThanMinimumClaim()
