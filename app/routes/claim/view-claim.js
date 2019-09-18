@@ -31,6 +31,7 @@ const checkUserAssignment = require('../../services/check-user-assignment')
 const Promise = require('bluebird')
 const getRejectionReasons = require('../../services/data/get-rejection-reasons')
 const getRejectionReasonId = require('../../services/data/get-rejection-reason-id')
+const MAX_APPROVER_TOTAL = require('../config').MAX_APPROVER_TOTAL
 
 var claimExpenses
 var claimDeductions
@@ -316,7 +317,8 @@ function renderValues (data, req, error) {
     claimDecisionEnum: claimDecisionEnum,
     errors: error.validationErrors,
     unlock: checkUserAssignment(req.user.email, data.claim.AssignedTo, data.claim.AssignmentExpiry),
-    isAdminApprover: authorisation.isAdminApproverNoError(req)
+    isAdminApprover: authorisation.isAdminApproverNoError(req),
+    maxTotal: MAX_APPROVER_TOTAL
   }
   if (data.rejectionReasons) {
     displayJson.rejectionReasons = data.rejectionReasons

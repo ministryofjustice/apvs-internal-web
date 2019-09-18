@@ -100,8 +100,9 @@ function totalApproved () {
     })
   }
 
+  var maxTotal = parseFloat(document.getElementById('maxTotal').value)
   $('.claim-expense-approvedCostText').text('£' + (approvedCost + manuallyProcessed).toFixed(2))
-  if (approvedCost + manuallyProcessed > 250 && (document.getElementById('isAdminApprover').value === 'false')) {
+  if (approvedCost + manuallyProcessed > maxTotal && (document.getElementById('isAdminApprover').value === 'false')) {
     $('#accept-input-label').removeClass('selected')
     $('#accept-input-label').hide()
     $('#accept-input').addClass('js-hidden')

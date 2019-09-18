@@ -55,5 +55,7 @@ module.exports = {
   AUTO_APPROVAL_NUMBER_OF_CONSECUTIVE_AUTO_APPROVALS: process.env.APVS_AUTO_APPROVAL_NUMBER_OF_CONSECUTIVE_AUTO_APPROVALS || '4',
 
   // Assignment rules
-  ASSIGNMENT_EXPIRY_TIME: process.env.APVS_ASSIGNMENT_EXPIRY_TIME || '60' // Number of minutes of inactivity to unassign caseworkers
+  ASSIGNMENT_EXPIRY_TIME: process.env.APVS_ASSIGNMENT_EXPIRY_TIME || '60', // Number of minutes of inactivity to unassign caseworkers,
+
+  MAX_APPROVER_TOTAL: process.env.APVS_MAX_APPROVER_TOTAL || '250'
 }

@@ -3,7 +3,7 @@ const FieldValidator = require('../validators/field-validator')
 const ErrorHandler = require('../validators/error-handler')
 const ERROR_MESSAGES = require('../validators/validation-error-messages')
 const claimDecisionEnum = require('../../constants/claim-decision-enum')
-
+const MAX_APPROVER_TOTAL = require('../../../config').MAX_APPROVER_TOTAL
 var noteId
 
 class ClaimDecision {
@@ -120,7 +120,7 @@ class ClaimDecision {
     var total = 0.00
     total = totalExpenseCost - totalDeductionCost
 
-    if (total > 250) {
+    if (total > parseFloat(MAX_APPROVER_TOTAL)) {
       if (this.decision === claimDecisionEnum.APPROVED) {
         if (!this.isAdminApprover) {
           throw new ValidationError({'assisted-digital-caseworker': [ERROR_MESSAGES.caseworkerIsNotAnAdminApprover]})
