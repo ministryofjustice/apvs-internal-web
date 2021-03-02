@@ -22,8 +22,10 @@ const BenefitExpiryDate = require('../../services/domain/benefit-expiry-date')
 const updateClaimOverpaymentStatus = require('../../services/data/update-claim-overpayment-status')
 const insertTopUp = require('../../services/data/insert-top-up')
 const cancelTopUp = require('../../services/data/cancel-top-up')
+const insertCheckDecision = require('../../services/data/insert-check-decision')
 const OverpaymentResponse = require('../../services/domain/overpayment-response')
 const TopupResponse = require('../../services/domain/topup-response')
+const CheckResponse = require('../../services/domain/check-response')
 const closeAdvanceClaim = require('../../services/data/close-advance-claim')
 const payoutBarcodeExpiredClaim = require('../../services/data/payout-barcode-expired-claim')
 const disableReferenceNumber = require('../../services/data/disable-reference-number')
@@ -38,6 +40,7 @@ const Promise = require('bluebird')
 const getRejectionReasons = require('../../services/data/get-rejection-reasons')
 const getRejectionReasonId = require('../../services/data/get-rejection-reason-id')
 const updateVisitorBenefitExpiryDate = require('../../services/data/update-visitor-benefit-expiry-date')
+const log = require('../../services/log')
 
 let claimExpenses
 let claimDeductions
@@ -155,6 +158,40 @@ module.exports = function (router) {
           } else {
             throw new Error('Bank payment details cannot be requested for a claim with an outstanding Top Up')
           }
+        })
+    })
+  })
+
+  router.post('/claim/:claimId/complete-check-1', function (req, res, next) {
+    const needAssignmentCheck = true
+    return validatePostRequest(req, res, next, needAssignmentCheck, `/claim/${req.params.claimId}`, function () {
+      return getIndividualClaimDetails(req.params.claimId)
+        .then(function (data) {
+          const claim = data.claim
+          const decision = req.body['check-decision']
+          const comments = req.body['check-comments']
+          const checkResponse = new CheckResponse(decision, comments)
+          return insertCheckDecision(claim, checkResponse, 1, req.user.email)
+            .then(function () {
+              return false
+            })
+        })
+    })
+  })
+
+  router.post('/claim/:claimId/complete-check-2', function (req, res, next) {
+    const needAssignmentCheck = true
+    return validatePostRequest(req, res, next, needAssignmentCheck, `/claim/${req.params.claimId}`, function () {
+      return getIndividualClaimDetails(req.params.claimId)
+        .then(function (data) {
+          const claim = data.claim
+          const decision = req.body['check-decision']
+          const comments = req.body['check-comments']
+          const checkResponse = new CheckResponse(decision, comments)
+          return insertCheckDecision(claim, checkResponse, 2, req.user.email)
+            .then(function () {
+              return false
+            })
         })
     })
   })
@@ -407,6 +444,7 @@ function populateNewData (data, req) {
 }
 
 function renderValues (data, req, error) {
+  log.info(data.checkResults)
   const displayJson = {
     title: 'APVS Claim',
     Claim: data.claim,
@@ -429,13 +467,13 @@ function renderValues (data, req, error) {
     overpaidClaims: data.overpaidClaims,
     claimantDuplicates: data.claimantDuplicates,
     bankDuplicates: data.bankDuplicates,
+    checkResults: data.checkResults,
     claimDecisionEnum: claimDecisionEnum,
     errors: error.validationErrors,
     unlock: checkUserAssignment(req.user.email, data.claim.AssignedTo, data.claim.AssignmentExpiry),
     latestUnpaidTopUp: data.latestUnpaidTopUp,
     topUpAmount: req.body['top-up-amount'],
-    topUpReason: req.body['top-up-reason'],
-    errorWasThrown: true
+    topUpReason: req.body['top-up-reason']
   }
   if (data.rejectionReasons) {
     displayJson.rejectionReasons = data.rejectionReasons

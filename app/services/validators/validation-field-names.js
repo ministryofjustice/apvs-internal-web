@@ -36,5 +36,7 @@ module.exports = {
   'top-up-amount': 'A Top-up amount',
   'top-up-reason': 'A Top-up reason',
   'benefit-expiry': 'Benefit Expiry Date',
-  'release-date-section': 'Release Date'
+  'release-date-section': 'Release Date',
+  'check-decision': 'A Decision',
+  'check-comments': 'A Reason'
 }

@@ -7,6 +7,7 @@ const getClaimTotalAmount = require('../get-claim-total-amount')
 const getOverpaidClaimsByReference = require('./get-overpaid-claims-by-reference')
 const claimDecisionEnum = require('../../constants/claim-decision-enum')
 const topUpStatusEnum = require('../../constants/top-up-status-enum')
+const getCheckResults = require('./get-check-results')
 const dateFormatter = require('../date-formatter')
 const moment = require('moment')
 
@@ -26,6 +27,8 @@ module.exports = function (claimId) {
   var reference
   var topUps
   var latestUnpaidTopUp
+  var bankDuplicates
+  var checkResults
 
   return getClaimantDetails(claimId)
     .then(function (claimData) {
@@ -45,6 +48,7 @@ module.exports = function (claimId) {
         getClaimsForPrisonNumberAndVisitDate(claimId, claim.PrisonNumber, claim.DateOfJourney),
         getTopUp(claimId),
         getLatestUnpaidTopUp(claimId),
+        getCheckResults(claim.Check1ResultId, claim.Check2ResultId),
         duplicateBankDetailsCheck(reference, claimData.AccountNumber)
       ])
     })
@@ -61,7 +65,8 @@ module.exports = function (claimId) {
       claimantDuplicates = results[9]
       topUps = results[10]
       latestUnpaidTopUp = results[11]
-      bankDuplicates = results[12]
+      checkResults = results[12]
+      bankDuplicates = results[13]
       claim = appendClaimDocumentsToClaim(claim, claimDocumentData)
       claim.Total = getClaimTotalAmount(claimExpenses, claimDeductions)
 
@@ -78,6 +83,7 @@ module.exports = function (claimId) {
         TopUps: topUps,
         claimantDuplicates: claimantDuplicates,
         latestUnpaidTopUp: latestUnpaidTopUp,
+        checkResults: checkResults,
         bankDuplicates: bankDuplicates
       }
 
@@ -148,7 +154,11 @@ function getClaimantDetails (claimId) {
       'Benefit.DateOfBirth AS BenefitOwnerDateOfBirth',
       'Benefit.NationalInsuranceNumber AS BenefitOwnerNationalInsuranceNumber',
       'ClaimBankDetail.AccountNumber',
-      'ClaimBankDetail.NameOnAccount')
+      'ClaimBankDetail.NameOnAccount',
+      'Claim.Check1ResultId',
+      'Claim.Check1Comments',
+      'Claim.Check2ResultId',
+      'Claim.Check2Comments')
     .then(function (data) {
       if (data.AssignedTo && data.AssignmentExpiry < dateFormatter.now().toDate()) {
         data.AssignedTo = null

@@ -24,6 +24,8 @@ let stubInsertNote
 let stubMergeClaimExpensesWithSubmittedResponses
 let stubRequestNewBankDetails
 let stubInsertTopUp
+let stubInsertCheckDecision
+let stubCheckResponse
 let stubCancelTopUp
 let stubTopupResponse
 let stubUpdateEligibilityTrustedStatus
@@ -64,6 +66,19 @@ const VALID_DATA_ADD_TOP_UP = {
   'top-up-amount': '140.85',
   'top-up-reason': 'Testing top up'
 }
+
+const VALID_DATA_CHECK_1 = {
+  'closed-claim-action': 'CHECK-1',
+  'check-decision': 'APPROVED',
+  'check-comments': ''
+}
+
+const VALID_DATA_CHECK_2 = {
+  'closed-claim-action': 'CHECK-2',
+  'check-decision': 'APPROVED',
+  'check-comments': ''
+}
+
 const VALID_DATA_PAYOUT_BARCODE_EXPIRED_CLAIM = {
   'payout-barcode-expired': 'PAYOUT-BARCODE-EXPIRED',
   'payout-barcode-expired-additional-information': 'Expiry reason'
@@ -121,6 +136,8 @@ describe('routes/claim/view-claim', function () {
     stubUpdateVisitorBenefirExpiryDate = sinon.stub()
     stubBenefitExpiryDate = sinon.stub()
     stubInsertTopUp = sinon.stub().resolves()
+    stubInsertCheckDecision = sinon.stub().resolves()
+    stubCheckResponse = sinon.stub().resolves()
     stubTopupResponse = sinon.stub()
     stubCancelTopUp = sinon.stub().resolves()
 
@@ -151,7 +168,9 @@ describe('routes/claim/view-claim', function () {
       '../../services/data/get-rejection-reasons': stubRejectionReasons,
       '../../services/data/get-rejection-reason-id': stubRejectionReasonId,
       '../../services/data/update-visitor-benefit-expiry-date': stubUpdateVisitorBenefirExpiryDate,
-      '../../services/domain/benefit-expiry-date': stubBenefitExpiryDate
+      '../../services/domain/benefit-expiry-date': stubBenefitExpiryDate,
+      '../../services/data/insert-check-decision': stubInsertCheckDecision,
+      '../../services/domain/check-response': stubCheckResponse
     })
     app = routeHelper.buildApp(route)
     route(app)
@@ -889,6 +908,74 @@ describe('routes/claim/view-claim', function () {
           expect(stubCheckUserAndLastUpdated.calledOnce).to.be.true //eslint-disable-line
           expect(stubCancelTopUp.calledOnce).to.be.true //eslint-disable-line
           expect(stubCancelTopUp.calledWith({Reference: 'CANCEL', EligibilityId: '1', PaymentStatus: 'PROCESSED'}, 'test@test.com')).to.be.true //eslint-disable-line
+        })
+    })
+  })
+
+  describe('POST /claim/:claimId/complete-check-1', function () {
+    it('should respond with 302 when valid check data entered', function () {
+      stubCheckUserAndLastUpdated.resolves()
+      stubInsertCheckDecision.resolves(VALID_DATA_CHECK_1)
+      stubGetIndividualClaimDetails.resolves({
+        claim: {
+          Reference: 'CHECK',
+          EligibilityId: '1',
+          PaymentStatus: 'PROCESSED'
+        },
+        TopUps: {
+          allTopUpsPaid: true
+        }
+      })
+
+      const checkResponse = {
+        decision: 'APPROVED',
+        comments: ''
+      }
+      stubCheckResponse.returns(checkResponse)
+
+      return supertest(app)
+        .post('/claim/123/complete-check-1')
+        .send(VALID_DATA_CHECK_1)
+        .expect(302)
+        .expect(function () {
+          expect(stubGetClaimLastUpdated.calledOnce).to.be.true //eslint-disable-line
+          expect(stubCheckUserAndLastUpdated.calledOnce).to.be.true //eslint-disable-line
+          expect(stubInsertCheckDecision.calledOnce).to.be.true //eslint-disable-line
+          expect(stubInsertCheckDecision.calledWith({Reference: 'CHECK', EligibilityId: '1', PaymentStatus: 'PROCESSED'}, checkResponse, 1, 'test@test.com')).to.be.true //eslint-disable-line
+        })
+    })
+  })
+
+  describe('POST /claim/:claimId/complete-check-2', function () {
+    it('should respond with 302 when valid check data entered', function () {
+      stubCheckUserAndLastUpdated.resolves()
+      stubInsertCheckDecision.resolves(VALID_DATA_CHECK_2)
+      stubGetIndividualClaimDetails.resolves({
+        claim: {
+          Reference: 'CHECK',
+          EligibilityId: '1',
+          PaymentStatus: 'PROCESSED'
+        },
+        TopUps: {
+          allTopUpsPaid: true
+        }
+      })
+
+      const checkResponse = {
+        decision: 'APPROVED',
+        comments: ''
+      }
+      stubCheckResponse.returns(checkResponse)
+
+      return supertest(app)
+        .post('/claim/123/complete-check-2')
+        .send(VALID_DATA_CHECK_1)
+        .expect(302)
+        .expect(function () {
+          expect(stubGetClaimLastUpdated.calledOnce).to.be.true //eslint-disable-line
+          expect(stubCheckUserAndLastUpdated.calledOnce).to.be.true //eslint-disable-line
+          expect(stubInsertCheckDecision.calledOnce).to.be.true //eslint-disable-line
+          expect(stubInsertCheckDecision.calledWith({Reference: 'CHECK', EligibilityId: '1', PaymentStatus: 'PROCESSED'}, checkResponse, 2, 'test@test.com')).to.be.true //eslint-disable-line
         })
     })
   })

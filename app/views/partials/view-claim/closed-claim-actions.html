@@ -14,6 +14,20 @@
       </label>
       {% endif %}
 
+      {% if Claim['Status'] == 'APPROVED' and checkResults['Check1Result'] === null %}
+      <label id="check-1-label" class="block-label inline" data-target="check-1-input">
+        <input type="radio" name="closed-claim-action" value="CHECK-1" id="top-up-toggle">
+        <span>Check 1</span>
+      </label>
+      {% endif %}
+
+      {% if Claim['Status'] == 'APPROVED' and checkResults['Check1Result'] === 'APPROVED' and checkResults['Check2Result'] == null %}
+      <label id="check-2-label" class="block-label inline" data-target="check-2-input">
+        <input type="radio" name="closed-claim-action" value="CHECK-2" id="top-up-toggle">
+        <span>Check 2</span>
+      </label>
+      {% endif %}
+
       {% if Claim['IsAdvanceClaim'] == true and Claim['Status'] != 'APPROVED-ADVANCE-CLOSED' %}
       <label class="block-label inline" data-target="close-advanced-claim-input">
         <input type="radio" name="closed-claim-action" value="CLOSE-ADVANCE-CLAIM" id="close-toggle">

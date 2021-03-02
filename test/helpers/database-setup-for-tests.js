@@ -2,15 +2,15 @@ const config = require('../../knexfile').migrations
 const knex = require('knex')(config)
 
 // TODO extract sample data into separate object so you can retrieve it and use in tests, so if it is updated it won't break tests
-module.exports.insertTestData = function (reference, date, status, visitDate, increment, paymentStatus = null) {
+module.exports.insertTestData = function (reference, date, status, visitDate, increment, paymentStatus = null, check1Approved = null, check2Approved = null) {
   const idIncrement = increment || 0
   // Generate unique Integer for Ids using timestamp in tenth of seconds
   const uniqueId = Math.floor(Date.now() / 100) - 14000000000 + idIncrement
 
-  return this.insertTestDataForIds(reference, date, status, visitDate, uniqueId, uniqueId + 1, uniqueId + 2, uniqueId + 3, paymentStatus)
+  return this.insertTestDataForIds(reference, date, status, visitDate, uniqueId, uniqueId + 1, uniqueId + 2, uniqueId + 3, paymentStatus, check1Approved, check2Approved)
 }
 
-module.exports.insertTestDataForIds = function (reference, date, status, visitDate, uniqueId, uniqueId2, uniqueId3, uniqueId4, paymentStatus) {
+module.exports.insertTestDataForIds = function (reference, date, status, visitDate, uniqueId, uniqueId2, uniqueId3, uniqueId4, paymentStatus, check1Approved, check2Approved) {
   const data = this.getTestData(reference, status)
 
   const ids = {}
@@ -87,7 +87,9 @@ module.exports.insertTestDataForIds = function (reference, date, status, visitDa
           PaymentMethod: data.Claim.PaymentMethod,
           AssignedTo: data.Claim.AssignedTo,
           AssignmentExpiry: new Date(date.getTime() + 300000), // current time + 5 minutes
-          PaymentStatus: paymentStatus
+          PaymentStatus: paymentStatus,
+          Check1ResultId: check1Approved,
+          Check2ResultId: check2Approved
         })
     })
     .then(function (result) {

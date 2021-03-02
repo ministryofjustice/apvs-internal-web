@@ -161,6 +161,18 @@
     {% include "partials/view-claim/add-top-up.html" %}
   </form>
 
+  <form action="/claim/{{ Claim['ClaimId'] }}/complete-check-1" method="post" class="form">
+    {% include "partials/csrf-hidden-input.html" %}
+    <input type="hidden" name="lastUpdated" value="{{ Claim['lastUpdatedHidden'] }}">
+    {% include "partials/view-claim/check-1.html" %}
+  </form>
+
+  <form action="/claim/{{ Claim['ClaimId'] }}/complete-check-2" method="post" class="form">
+    {% include "partials/csrf-hidden-input.html" %}
+    <input type="hidden" name="lastUpdated" value="{{ Claim['lastUpdatedHidden'] }}">
+    {% include "partials/view-claim/check-2.html" %}
+  </form>
+
   <form action="/claim/{{ Claim['ClaimId'] }}/close-advance-claim" method="post" class="form">
       {% include "partials/csrf-hidden-input.html" %}
       <input type="hidden" name="lastUpdated" value="{{ Claim['lastUpdatedHidden'] }}">

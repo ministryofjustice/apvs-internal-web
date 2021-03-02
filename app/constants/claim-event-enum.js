@@ -71,6 +71,22 @@ module.exports = {
     value: 'CLAIM-APPROVED',
     displayName: 'Claim approved'
   },
+  CHECK_1_APPROVED: {
+    value: 'CHECK-1-APPROVED',
+    displayName: 'Check 1 approved'
+  },
+  CHECK_1_REJECTED: {
+    value: 'CHECK-1-REJECTED',
+    displayName: 'Check 1 rejected'
+  },
+  CHECK_2_APPROVED: {
+    value: 'CHECK-2-APPROVED',
+    displayName: 'Check 2 approved'
+  },
+  CHECK_2_REJECTED: {
+    value: 'CHECK-2-REJECTED',
+    displayName: 'Check 2 rejected'
+  },
   CLAIM_REJECTED: {
     value: 'CLAIM-REJECTED',
     displayName: 'Claim rejected'

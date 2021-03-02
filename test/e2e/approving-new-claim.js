@@ -11,6 +11,7 @@ let claimId
 let expenseId1
 let expenseId2
 const expiryDate = dateFormatter.now().add(14, 'days')
+const log = require('../../app/services/log')
 
 describe('First time claim viewing flow', () => {
   before(function () {
@@ -44,6 +45,22 @@ describe('First time claim viewing flow', () => {
     // View-claim
     const assignSelf = await $('#assign-self')
     await assignSelf.click()
+
+    try {
+      let check1Label = await $('#check-1-label')
+      let exists = await check1Label.isExisting()
+      expect(exists, 'Check 1 should not be available after check 2 has been Rejected').to.equal(false)
+    } catch (error) {
+      log.error(error)
+    }
+
+    try {
+      let check2Label = await $('#check-2-label')
+      let exists = await check2Label.isExisting()
+      expect(exists, 'Check 2 should not be available after check 2 has been Rejected').to.equal(false)
+    } catch (error) {
+      log.error(error)
+    }
 
     let visitorName = await $('#visitor-name')
     visitorName = await visitorName.getText()
