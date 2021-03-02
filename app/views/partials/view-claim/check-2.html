@@ -1,0 +1,24 @@
+<!-- Check 2 -->
+<div class="panel js-hidden" id="check-2-input">
+
+  <div class="form-group {% if errors['check-decision'][0] %} error {% endif %}" id='check-2-decision-group'>
+    <label class="form-label-bold" for="check-decision">Decision</label>
+    {% if errors['check-decision'][0] %}
+      <span class="error-message" id="error-message-check-2-decision">{{ errors['check-decision'][0] }}</span>
+    {% endif %}
+    <select class="form-control" id="check-decision2" name="check-decision">
+      <option value="" disabled selected>Select</option>
+      <option value="APPROVED" {% if claimDecision['check-decision'] === 'APPROVED' %} selected {% endif %}>Approve</option>
+      <option value="REJECTED" {% if claimDecision['check-decision'] === 'REJECTED' %} selected {% endif %}>Reject</option>
+    </select>
+  </div>
+  <div class="form-group  {% if errors['check-comments'][0] %} error {% endif %}" id='check-2-comments-group'>
+    <label class="form-label-bold" for="check-comments">Comments</label>
+    {% if errors['check-comments'][0] %}
+      <span class="error-message" id="error-message-check-2-comments">{{ errors['check-comments'][0] }}</span>
+    {% endif %}
+    <textarea class="form-control" name="check-comments" id="check-comments2" maxlength="250">{{ claimDecision['check-comments'] }}</textarea>
+  </div>
+  <input type="submit" class="button" name="complete-check-2" id="complete-check-2" value="Complete Check 2">
+</div>
+<!-- End of Check 2 -->
