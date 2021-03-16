@@ -1,0 +1,307 @@
+{% extends "includes/layout.html" %}
+
+{% block page_title %}
+{% if serviceName %} {{ serviceName }} {% endif %}
+{% endblock %}
+
+{% block content %}
+
+<main id="content" role="main">
+
+  {% include "includes/phase_banner_beta.html" %}
+
+  {% import 'partials/navigation.html' as nav %}
+    {{nav.active('management-information')}}
+
+  
+  <form id="management-information" action="/management-information">
+
+    <div class="grid-row">
+      <div class="column-one-half">
+        <form action='/management-information' method="GET">
+          <label class="form-label-bold">Metric</label>
+          <select class="form-control full" id="filter" name="filter">
+            <option value="10" {% if activeFilter == '10' or activeFilter == null %}selected=""{% endif %}>10% Check</option>
+            <option value="100" {% if activeFilter == '100' or activeFilter == null %}selected=""{% endif %}>100% Check</option>
+            <option value="recieved" {% if activeFilter == 'received' %}selected=""{% endif %}>Claims Recieved Summary</option>
+            <option value="pending" {% if activeFilter == 'pending' %}selected=""{% endif %}>Claims Pending Summary</option>
+            <option value="paid" {% if activeFilter == 'paid' %}selected=""{% endif %}>Claims Paid Summary</option>
+            <option value="rejected" {% if activeFilter == 'rejected' %}selected=""{% endif %}>Claims Rejected Summary</option>
+          </select>
+        </form>
+      </div>
+    </div>
+
+    {# <div class="grid-row">
+      <div class="column-one-half">
+        <h3 class="heading-small">Date claim received</h3>
+
+        <div class="grid-row">
+          <div class="column-one-half">
+            <div class="form-group">
+              <label id="dateApprovedFrom" class="form-label-bold">
+                From
+              </label>
+
+              {% if errors['dateApprovedFrom'][0] %}
+                <span class="error-message">{{ errors['dateApprovedFrom'][0] }}</span>
+              {% endif %}
+
+              <div class="form-date advanced-search-date">
+                <div class="form-group form-group-day">
+                  <label for="dateApprovedFromDay">Day</label>
+                  <input id="dateApprovedFromDay" name="dateApprovedFromDay" value="{{ query.dateApprovedFromDay }}" class="form-control">
+                </div>
+                <div class="form-group form-group-month">
+                  <label for="dateApprovedFromMonth">Month</label>
+                  <input id="dateApprovedFromMonth" name="dateApprovedFromMonth" value="{{ query.dateApprovedFromMonth }}" class="form-control">
+                </div>
+                <div class="form-group form-group-year">
+                  <label for="dateApprovedFromYear">Year</label>
+                  <input id="dateApprovedFromYear" name="dateApprovedFromYear" value="{{ query.dateApprovedFromYear }}" class="form-control">
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="column-one-half">
+            <div class="form-group">
+              <label id="dateApprovedTo" class="form-label-bold">
+                To
+              </label>
+
+              {% if errors['dateApprovedTo'][0] %}
+                <span class="error-message">{{ errors['dateApprovedTo'][0] }}</span>
+              {% endif %}
+
+              <div class="form-date advanced-search-date">
+                <div class="form-group form-group-day">
+                  <label for="dateApprovedToDay">Day</label>
+                  <input id="dateApprovedToDay" name="dateApprovedToDay" value="{{ query.dateApprovedToDay }}" class="form-control">
+                </div>
+                <div class="form-group form-group-month">
+                  <label for="dateApprovedToMonth">Month</label>
+                  <input id="dateApprovedToMonth" name="dateApprovedToMonth" value="{{ query.dateApprovedToMonth }}" class="form-control">
+                </div>
+                <div class="form-group form-group-year">
+                  <label for="dateApprovedToYear">Year</label>
+                  <input id="dateApprovedToYear" name="dateApprovedToYear" value="{{ query.dateApprovedToYear }}" class="form-control">
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div> #}
+<br>
+    <div class="grid-row">
+      <div class="column-one-half">
+        <form action='/management-information' method="GET">
+          <label class="form-label-bold">How would you like the claims broken down by?</label>
+          <select class="form-control full" id="filter" name="filter">
+            <option value="select" disabled selected>Select</option>
+            <option value="any">Week</option>
+            <option value="any">Month</option>
+            <option value="england">Quarter</option>
+            <option value="scotland">Year</option>
+          </select>
+        </form>
+      </div>
+    </div>
+<br>
+
+<div class="grid-row">
+  <div class="column-one-half">
+    <div class="form-group">
+      <label id="visitDateFrom" class="form-label-bold">
+        From
+      </label>
+
+      {% if errors['visitDateFrom'][0] %}
+        <span class="error-message">{{ errors['visitDateFrom'][0] }}</span>
+      {% endif %}
+
+      <div class="form-date advanced-search-date">
+        <div class="form-group form-group-day">
+          <label for="visitDateFromDay">Day</label>
+          <input id="visitDateFromDay" name="visitDateFromDay" value="{{ query.visitDateFromDay }}" class="form-control">
+        </div>
+        <div class="form-group form-group-month">
+          <label for="visitDateFromMonth">Month</label>
+          <input id="visitDateFromMonth" name="visitDateFromMonth" value="{{ query.visitDateFromMonth }}" class="form-control">
+        </div>
+        <div class="form-group form-group-year">
+          <label for="visitDateFromYear">Year</label>
+          <input id="visitDateFromYear" name="visitDateFromYear" value="{{ query.visitDateFromYear }}" class="form-control">
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="grid-row">
+
+  <div class="column-one-half">
+    <div class="form-group">
+      <label id="visitDateTo" class="form-label-bold">
+        To
+      </label>
+
+      {% if errors['visitDateTo'][0] %}
+        <span class="error-message">{{ errors['visitDateTo'][0] }}</span>
+      {% endif %}
+
+      <div class="form-date advanced-search-date">
+        <div class="form-group form-group-day">
+          <label for="visitDateToDay">Day</label>
+          <input id="visitDateToDay" name="visitDateToDay" value="{{ query.visitDateToDay }}" class="form-control">
+        </div>
+        <div class="form-group form-group-month">
+          <label for="visitDateToMonth">Month</label>
+          <input id="visitDateToMonth" name="visitDateToMonth" value="{{ query.visitDateToMonth }}" class="form-control">
+        </div>
+        <div class="form-group form-group-year">
+          <label for="visitDateToYear">Year</label>
+          <input id="visitDateToYear" name="visitDateToYear" value="{{ query.visitDateToYear }}" class="form-control">
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="grid-row">
+  <div class="column-one-half">
+    <form action='/management-information' method="GET">
+      <label class="form-label-bold">Please choose a week</label>
+      <select class="form-control full" id="filter" name="filter">
+        <option value="select" disabled selected>Select</option>
+        <option value="any">01/02/2021 - 07/02/2021</option>
+        <option value="any">...</option>
+        <option value="england">...</option>
+        <option value="scotland">...</option>
+        <option value="any">01/03/2021 - 07/03/2021</option>
+      </select>
+    </form>
+  </div>
+</div>
+<br>
+
+    <!-- <div class="grid-row">
+      <div class="column-one-half">
+        <form action='/management-information' method="GET">
+          <label class="form-label-bold">Please choose a month</label>
+          <select class="form-control full" id="filter" name="filter">
+            <option value="select" disabled selected>Select</option>
+            <option value="any">December 2020</option>
+            <option value="england">2018</option>
+            <option value="scotland">2019</option>
+            <option value="scotland">2020</option>
+          </select>
+        </form>
+      </div>
+    </div>
+<br> -->
+
+<div class="grid-row">
+  <div class="column-one-half">
+    <form action='/management-information' method="GET">
+      <label class="form-label-bold">Please choose an expense</label>
+      <select class="form-control full" id="filter" name="filter">
+        <option value="select" disabled selected>Select</option>
+        <option value="any">Accommodation</option>
+        <option value="england">Bus</option>
+        <option value="scotland">Car</option>
+        <option value="scotland">Ferry</option>
+        <option value="scotland">Car Hire</option>
+        <option value="scotland">Parking</option>
+        <option value="scotland">Plane</option>
+        <option value="scotland">Refreshment</option>
+        <option value="scotland">Taxi</option>
+        <option value="scotland">Toll</option>
+        <option value="scotland">Train</option>
+      </select>
+    </form>
+  </div>
+</div>
+<br>
+    <div class="grid-row">
+      <div class="column-one-half">
+        <form action='/management-information' method="GET">
+          <label class="form-label-bold">Country</label>
+          <select class="form-control full" id="filter" name="filter">
+            <option value="any" {% if activeFilter == 'england' or activeFilter == null %}selected=""{% endif %}>Any</option>
+            <option value="england" {% if activeFilter == 'england' or activeFilter == null %}selected=""{% endif %}>England</option>
+            <option value="scotland" {% if activeFilter == 'scotland' or activeFilter == null %}selected=""{% endif %}>Scotland</option>
+            <option value="wales" {% if activeFilter == 'wales' %}selected=""{% endif %}>Wales</option>
+            <option value="northernIreland" {% if activeFilter == 'northernIreland' %}selected=""{% endif %}>Northern Ireland</option>
+          </select>
+        </form>
+      </div>
+    </div>
+<br>
+      <div class="grid-row">
+        <div class="column-one-half">
+          <div class="form-group">
+            <input id="advanced-search-submit" type="submit" class="button" value="Search">
+            <a href="/" class="link margin-left margin-top">Cancel</a>
+          </div>
+        </div>
+      </div>
+
+      <div class="grid-row">
+        <div class="column-full">
+          <h2 id="10-percent-check-results-header" class="heading-medium">Results</h2>
+    
+          <table id="10-percent-check-results" class="table">
+            <thead>
+              <tr>
+                <th class="sorting_disabled">Ref no.</th>
+                <th class="sorting_disabled">Claimant Name</th>
+                <th class="sorting_disabled">Caseworker</th>
+                <th class="sorting_disabled">Date Processed</th>
+                <th class="sorting_disabled">Claim No.</th>
+                <th class="sorting_disabled">Paid / Rejected</th>
+                <th class="sorting_disabled"></th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td class="sorting_disabled">CLAIM-REF-N12562</td>
+                <td class="sorting_disabled">James Smith</td>
+                <td class="sorting_disabled">Jane Brown</td>
+                <td class="sorting_disabled">03/12/2020 - 14:53</td>
+                <td class="sorting_disabled">1534664</td>
+                <td class="sorting_disabled">Paid</td>
+                <td class="sorting_disabled"><a id="claim1534664" href="/claim/1534664">View</a></td>
+              </tr>
+              <tr>
+                <td class="sorting_disabled">CLAIM-REF-G26352</td>
+                <td class="sorting_disabled">Matt Johnson</td>
+                <td class="sorting_disabled">Frank Jones</td>
+                <td class="sorting_disabled">02/12/2020 - 10:42</td>
+                <td class="sorting_disabled">1534663</td>
+                <td class="sorting_disabled">Paid</td>
+                <td class="sorting_disabled"><a id="claim1534664" href="/claim/1534664">View</a></td>
+              </tr>
+              <tr>
+                <td class="sorting_disabled">CLAIM-REF-H37635</td>
+                <td class="sorting_disabled">Joe Bloggs</td>
+                <td class="sorting_disabled">Amy Jackson</td>
+                <td class="sorting_disabled">01/12/2020 - 13:31</td>
+                <td class="sorting_disabled">1534662</td>
+                <td class="sorting_disabled">Paid</td>
+                <td class="sorting_disabled"><a id="claim1534664" href="/claim/1534664">View</a></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+  </form>
+
+</main>
+
+{% endblock %}
+
+{% block body_end %}
+  {# {% include "includes/dashboard-scripts.html" %} #}
+{% endblock %}

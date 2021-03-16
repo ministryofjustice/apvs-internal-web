@@ -1,10 +1,13 @@
 {% macro active(activePage = '') %}
     <ul id="sub-nav">
         <li>
-            <a class="{%if activePage == 'dashboard' %}active {% endif%}" href="/dashboard">Dashboard</a>
+            <a class="{% if activePage == 'dashboard' %} active {% endif %}" href="/dashboard">Dashboard</a>
         </li>
         <li>
-            <a class="{%if activePage == '/' %}active {% endif%}" href="/">Claims</a>
+            <a class="{% if activePage == '/' %} active {% endif %}" href="/">Claims</a>
+        </li>
+        <li>
+            <a class="{% if activePage == 'management-information' %} active {% endif %}" href="/management-information">Management Information</a>
         </li>
     </ul>
 {% endmacro %}
