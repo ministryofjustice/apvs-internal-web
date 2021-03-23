@@ -15,7 +15,7 @@ class FieldValidator {
   }
 
   isRequired (specificMessage) {
-    var message = (!specificMessage) ? ERROR_MESSAGES.getIsRequired : specificMessage
+    const message = (!specificMessage) ? ERROR_MESSAGES.getIsRequired : specificMessage
     if (validator.isNullOrUndefined(this.data)) {
       this.errors.add(this.fieldName, message)
     } else if (this.data === 'Select') {
@@ -74,7 +74,7 @@ class FieldValidator {
   }
 
   isLessThanLength (length, specificMessage) {
-    var message = (!specificMessage) ? ERROR_MESSAGES.getIsLessThanLengthMessage : specificMessage
+    const message = (!specificMessage) ? ERROR_MESSAGES.getIsLessThanLengthMessage : specificMessage
     if (!validator.isLessThanLength(this.data, length)) {
       this.errors.add(this.fieldName, message, { length: length })
     }
@@ -98,6 +98,33 @@ class FieldValidator {
   isMaxCostOrLess () {
     if (!validator.isMaxCostOrLess(this.data)) {
       this.errors.add(this.fieldName, ERROR_MESSAGES.getValueIsTooLarge)
+    }
+    return this
+  }
+
+  isValidDate (date) {
+    if (!validator.isValidDate(date)) {
+      this.errors.add(this.fieldName, ERROR_MESSAGES.getInvalidDateFormatMessage)
+    }
+    return this
+  }
+
+  isDateRequired (specificMessage) {
+    const message = (!specificMessage) ? ERROR_MESSAGES.getIsRequired : specificMessage
+    const self = this
+    if (this.data instanceof Array) {
+      this.data.forEach(function (data) {
+        if (validator.isNullOrUndefined(data)) {
+          self.errors.add(self.fieldName, message)
+        }
+      })
+    }
+    return this
+  }
+
+  isFutureDate (date) {
+    if (!validator.isDateInTheFuture(date)) {
+      this.errors.add(this.fieldName, ERROR_MESSAGES.getFutureDateMessage)
     }
     return this
   }

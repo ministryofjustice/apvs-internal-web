@@ -5,9 +5,11 @@ const claimStatusEnum = require('../../../app/constants/claim-status-enum')
 const rulesEnum = require('../../../app/constants/region-rules-enum')
 const dateFormatter = require('../date-formatter')
 const statusFormatter = require('../claim-status-formatter')
+const Promise = require('bluebird').Promise
+const getClosedClaimStatus = require('./get-closed-claim-status')
 
-const APPROVED_STATUS_VALUES = [ claimStatusEnum.APPROVED.value, claimStatusEnum.APPROVED_ADVANCE_CLOSED.value, claimStatusEnum.APPROVED_PAYOUT_BARCODE_EXPIRED.value, claimStatusEnum.AUTOAPPROVED.value ]
-const IN_PROGRESS_STATUS_VALUES = [ claimStatusEnum.UPDATED.value, claimStatusEnum.REQUEST_INFORMATION.value, claimStatusEnum.REQUEST_INFO_PAYMENT.value ]
+const APPROVED_STATUS_VALUES = [claimStatusEnum.APPROVED.value, claimStatusEnum.APPROVED_ADVANCE_CLOSED.value, claimStatusEnum.APPROVED_PAYOUT_BARCODE_EXPIRED.value, claimStatusEnum.AUTOAPPROVED.value]
+const IN_PROGRESS_STATUS_VALUES = [claimStatusEnum.UPDATED.value, claimStatusEnum.REQUEST_INFORMATION.value, claimStatusEnum.REQUEST_INFO_PAYMENT.value]
 const PENDING_SM_VALUE = 'PENDING-SENIOR-MANAGER'
 
 var countQuery
@@ -35,6 +37,7 @@ var validSearchOptions = [
   'dateRejectedTo',
   'approvedClaimAmountFrom',
   'approvedClaimAmountTo',
+  'overpaymentStatus',
   'paymentMethod'
 ]
 
@@ -50,7 +53,8 @@ const ADVANCED_SEARCH_FIELDS = [
   'Claim.AssignmentExpiry',
   'Claim.Status',
   'Claim.LastUpdated',
-  'ClaimRejectionReason.RejectionReason'
+  'ClaimRejectionReason.RejectionReason',
+  'Claim.PaymentDate'
 ]
 const EXPORT_CLAIMS_FIELDS = [
   'Visitor.FirstName',
@@ -73,7 +77,8 @@ const EXPORT_CLAIMS_FIELDS = [
   'Eligibility.IsTrusted',
   'Prisoner.NameOfPrison',
   'ClaimRejectionReason.RejectionReason',
-  'Claim.Note'
+  'Claim.Note',
+  'Claim.PaymentDate'
 ]
 
 module.exports = function (searchCriteria, offset, limit, isExport) {
@@ -163,6 +168,11 @@ module.exports = function (searchCriteria, offset, limit, isExport) {
     applyVisitRulesFilter(selectQuery, searchCriteria.visitRules)
   }
 
+  if (searchCriteria.overpaymentStatus) {
+    applyOverpaymentStatusFilter(countQuery, searchCriteria.overpaymentStatus)
+    applyOverpaymentStatusFilter(selectQuery, searchCriteria.overpaymentStatus)
+  }
+
   if (searchCriteria.visitDateFrom) {
     applyVisitDateFromFilter(countQuery, searchCriteria.visitDateFrom)
     applyVisitDateFromFilter(selectQuery, searchCriteria.visitDateFrom)
@@ -222,20 +232,39 @@ module.exports = function (searchCriteria, offset, limit, isExport) {
     .then(function (count) {
       return selectQuery
         .then(function (claims) {
-          claims.forEach(function (claim) {
+          var claimsToReturn = []
+          return Promise.each(claims, function (claim) {
             claim.DateSubmittedFormatted = moment(claim.DateSubmitted).format('DD/MM/YYYY - HH:mm')
             claim.DateOfJourneyFormatted = moment(claim.DateOfJourney).format('DD/MM/YYYY')
+            claim.DateSubmittedMoment = moment(claim.DateSubmitted)
             claim.DisplayStatus = statusFormatter(claim.Status)
             claim.Name = claim.FirstName + ' ' + claim.LastName
             if (claim.AssignedTo && claim.AssignmentExpiry < dateFormatter.now().toDate()) {
               claim.AssignedTo = null
             }
             claim.AssignedTo = !claim.AssignedTo ? 'Unassigned' : claim.AssignedTo
+            if (claim.PaymentDate) {
+              claim.DaysUntilPayment = moment(claim.PaymentDate).diff(claim.DateSubmittedMoment, 'days')
+            } else {
+              claim.DaysUntilPayment = 'N/A'
+            }
+            if (claim.Status === claimStatusEnum.APPROVED_ADVANCE_CLOSED.value) {
+              return getClosedClaimStatus(claim.ClaimId)
+                .then(function (status) {
+                  claim.DisplayStatus = 'Closed - ' + statusFormatter(status)
+                  claimsToReturn.push(claim)
+                })
+            } else {
+              claimsToReturn.push(claim)
+              return Promise.resolve()
+            }
           })
-          return {
-            claims: claims,
-            total: count[0]
-          }
+            .then(function () {
+              return {
+                claims: claimsToReturn,
+                total: count[0]
+              }
+            })
         })
     })
 
@@ -244,7 +273,7 @@ module.exports = function (searchCriteria, offset, limit, isExport) {
   }
 
   function applyNameFilter (query, name) {
-    query.whereRaw(`CONCAT(Visitor.FirstName, ' ', Visitor.LastName) like ?`, [`%${name}%`])
+    query.whereRaw('CONCAT(Visitor.FirstName, \' \', Visitor.LastName) like ?', [`%${name}%`])
   }
 
   function applyNINumberFilter (query, ninumber) {
@@ -312,6 +341,17 @@ module.exports = function (searchCriteria, offset, limit, isExport) {
       query.where('Visitor.Country', rulesEnum.SCOTLAND.value)
     } else if (visitRules === 'northernIreland') {
       query.where('Visitor.Country', rulesEnum.NI.value)
+    }
+  }
+
+  function applyOverpaymentStatusFilter (query, overpaymentStatus) {
+    if (overpaymentStatus === 'false') {
+      query.where(function () {
+        this.where('Claim.IsOverpaid', false)
+          .orWhereNull('Claim.IsOverpaid')
+      })
+    } else {
+      query.orWhere('Claim.IsOverpaid', true)
     }
   }
 

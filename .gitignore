@@ -11,6 +11,7 @@ node_modules
 .start.pid
 .port.tmp
 .tmuxp.*
+.env
 
 # Static managed assets
 app/views/govuk_template.html
@@ -21,6 +22,7 @@ errorShots
 
 # coverage reports
 coverage
+.nyc_output/
 
 # Ignore IntelliJ files
 .idea/
@@ -40,3 +42,9 @@ run-unit-tests.sh
 
 # Public directory
 app/public
+
+# Uploads
+uploads/
+
+# data
+data/

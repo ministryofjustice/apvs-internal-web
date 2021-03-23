@@ -28,7 +28,7 @@ module.exports = {
   TEST_SSO_PASSWORD: process.env.APVS_MOJ_SSO_TEST_SSO_PASSWORD,
 
   // Payment
-  PAYMENT_NUMBER_OF_PAYMENT_FILES: process.env.APVS_PAYMENT_NUMBER_OF_PAYMENT_FILES || '7',
+  PAYMENT_NUMBER_OF_PAYMENT_FILES: process.env.APVS_PAYMENT_NUMBER_OF_PAYMENT_FILES || '31',
 
   // File upload
   FILE_UPLOAD_LOCATION: process.env.FILE_UPLOAD_LOCATION || './uploads',
@@ -55,7 +55,10 @@ module.exports = {
   AUTO_APPROVAL_NUMBER_OF_CONSECUTIVE_AUTO_APPROVALS: process.env.APVS_AUTO_APPROVAL_NUMBER_OF_CONSECUTIVE_AUTO_APPROVALS || '4',
 
   // Assignment rules
-  ASSIGNMENT_EXPIRY_TIME: process.env.APVS_ASSIGNMENT_EXPIRY_TIME || '60', // Number of minutes of inactivity to unassign caseworkers,
+  ASSIGNMENT_EXPIRY_TIME: process.env.APVS_ASSIGNMENT_EXPIRY_TIME || '60', // Number of minutes of inactivity to unassign caseworkers
 
-  MAX_APPROVER_TOTAL: process.env.APVS_MAX_APPROVER_TOTAL || '250'
+  MAX_APPROVER_TOTAL: process.env.APVS_MAX_APPROVER_TOTAL || '250',
+
+  // Azure App Insights
+  APP_INSIGHTS_INSTRUMENTATION_KEY: process.env.APVS_APP_INSIGHTS_INSTRUMENTATION_KEY
 }

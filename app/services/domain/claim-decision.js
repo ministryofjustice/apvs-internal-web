@@ -4,25 +4,34 @@ const ErrorHandler = require('../validators/error-handler')
 const ERROR_MESSAGES = require('../validators/validation-error-messages')
 const claimDecisionEnum = require('../../constants/claim-decision-enum')
 const MAX_APPROVER_TOTAL = require('../../../config').MAX_APPROVER_TOTAL
-var noteId
+const dateFormatter = require('../date-formatter')
+
+let noteId
 
 class ClaimDecision {
   constructor (caseworker,
-               assistedDigitalCaseworker,
-               decision,
-               additionalInfoApprove,
-               additionalInfoRequest,
-               additionalInfoReject,
-               additionalInfoRefer,
-               nomisCheck,
-               dwpCheck,
-               visitConfirmationCheck,
-               claimExpenseResponses,
-               claimDeductionResponses,
-               isAdvanceClaim,
-               rejectionReasonId,
-               additionalInfoRejectManual,
-               isAdminApprover) {
+    assistedDigitalCaseworker,
+    decision,
+    additionalInfoApprove,
+    additionalInfoRequest,
+    additionalInfoReject,
+    additionalInfoRefer,
+    nomisCheck,
+    dwpCheck,
+    visitConfirmationCheck,
+    claimExpenseResponses,
+    claimDeductionResponses,
+    isAdvanceClaim,
+    rejectionReasonId,
+    additionalInfoRejectManual,
+    expiryDay,
+    expiryMonth,
+    expiryYear,
+    releaseDateIsSet,
+    releaseDay,
+    releaseMonth,
+    releaseYear,
+    isAdminApprover) {
     this.caseworker = caseworker
     this.assistedDigitalCaseworker = assistedDigitalCaseworker
     this.rejectionReasonId = null
@@ -60,14 +69,31 @@ class ClaimDecision {
     this.claimDeductionResponses = claimDeductionResponses
     this.isAdvanceClaim = isAdvanceClaim
     this.isAdminApprover = isAdminApprover
+    this.expiryDateFields = [
+      expiryDay,
+      expiryMonth,
+      expiryYear
+    ]
+    this.expiryDate = dateFormatter.build(expiryDay, expiryMonth, expiryYear)
+    if (releaseDateIsSet) {
+      this.releaseDateIsSet = true
+    } else {
+      this.releaseDateIsSet = false
+    }
+    this.releaseDateFields = [
+      releaseDay,
+      releaseMonth,
+      releaseYear
+    ]
+    this.releaseDate = dateFormatter.build(releaseDay, releaseMonth, releaseYear)
     this.IsValid()
   }
 
   IsValid () {
-    var errors = ErrorHandler()
+    const errors = ErrorHandler()
 
     if (this.caseworker === this.assistedDigitalCaseworker) {
-      throw new ValidationError({'assisted-digital-caseworker': [ERROR_MESSAGES.getAssistedDigitalCaseworkerSameClaim]})
+      throw new ValidationError({ 'assisted-digital-caseworker': [ERROR_MESSAGES.getAssistedDigitalCaseworkerSameClaim] })
     }
 
     FieldValidator(this.decision, 'decision', errors)
@@ -96,8 +122,8 @@ class ClaimDecision {
       }
     })
 
-    var totalExpenseCost = 0.00
-    var allExpensesRejected = true
+    let totalExpenseCost = 0.00
+    let allExpensesRejected = true
     this.claimExpenseResponses.forEach(function (expense) {
       if (expense.status !== claimDecisionEnum.REJECTED) {
         allExpensesRejected = false
@@ -112,12 +138,12 @@ class ClaimDecision {
       errors.add('claim-expenses', ERROR_MESSAGES.getNonRejectedClaimExpenseResponse)
     }
 
-    var totalDeductionCost = 0.00
+    let totalDeductionCost = 0.00
     this.claimDeductionResponses.forEach(function (deduction) {
       totalDeductionCost += parseFloat(deduction.Amount)
     })
 
-    var total = 0.00
+    let total = 0.00
     total = totalExpenseCost - totalDeductionCost
 
     if (total > parseFloat(MAX_APPROVER_TOTAL)) {
@@ -143,7 +169,18 @@ class ClaimDecision {
         .isRequired(ERROR_MESSAGES.getVisitConfirmationRequired)
     }
 
-    var validationErrors = errors.get()
+    FieldValidator(this.expiryDateFields, 'benefit-expiry', errors)
+      .isDateRequired(ERROR_MESSAGES.getExpiryDateIsRequired)
+      .isValidDate(this.expiryDate)
+
+    if (this.releaseDateIsSet) {
+      FieldValidator(this.releaseDateFields, 'release-date-section', errors)
+        .isDateRequired(ERROR_MESSAGES.getReleaseDateIsRequired)
+        .isValidDate(this.releaseDate)
+        .isFutureDate(this.releaseDate)
+    }
+
+    const validationErrors = errors.get()
 
     if (validationErrors) {
       throw new ValidationError(validationErrors)

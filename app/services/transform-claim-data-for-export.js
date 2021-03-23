@@ -28,6 +28,7 @@ const PAYMENT_METHOD_HEADER = 'Payment Method'
 const CLAIM_EXPENSE_TYPE_HEADER = 'Expense Type '
 const EXPENSE_APPROVED_COST_HEADER = 'Approved Cost '
 const REJECTION_REASON_HEADER = 'Rejection Reason'
+const DAYS_UNTIL_PAYMENT_HEADER = 'Days Until Payment'
 
 module.exports = function (claims) {
   return Promise.map(claims, function (claim) {
@@ -37,12 +38,12 @@ module.exports = function (claims) {
       getClaimExpenses(claim.ClaimId)
     ])
       .then(function (result) {
-        var returnValue = {}
+        const returnValue = {}
 
-        var childCount = result[0][0].Count
-        var hasEscort = result[1].length > 0
-        var claimExpenses = result[2]
-        var totalAmountPaid = (claim.PaymentAmount || 0) + (claim.ManuallyProcessedAmount || 0)
+        const childCount = result[0][0].Count
+        const hasEscort = result[1].length > 0
+        const claimExpenses = result[2]
+        const totalAmountPaid = (claim.PaymentAmount || 0) + (claim.ManuallyProcessedAmount || 0)
 
         returnValue[NAME_HEADER] = claim.Name
         returnValue[PRISON_NAME_HEADER] = displayHelper.getPrisonDisplayName(claim.NameOfPrison)
@@ -56,16 +57,17 @@ module.exports = function (claims) {
         returnValue[ASSISTED_DIGITAL_CASEWORKER_HEADER] = claim.AssistedDigitalCaseworker
         returnValue[CASEWORKER_HEADER] = claim.Caseworker
         returnValue[IS_TRUSTED_HEADER] = claim.IsTrusted ? 'Y' : 'N'
-        returnValue[CLAIM_STATUS_HEADER] = claim.Status
+        returnValue[CLAIM_STATUS_HEADER] = claim.DisplayStatus
         returnValue[DATE_REVIEWED_BY_CASEWORKER_HEADER] = claim.DateReviewed ? dateHelper.shortDate(claim.DateReviewed) : null
         returnValue[IS_ADVANCE_CLAIM_HEADER] = claim.IsAdvanceClaim ? 'Y' : 'N'
         returnValue[TOTAL_AMOUNT_PAID_HEADER] = totalAmountPaid
         returnValue[PAYMENT_METHOD_HEADER] = claim.PaymentMethod ? displayHelper.getPaymentMethodDisplayName(claim.PaymentMethod) : ''
         returnValue[REJECTION_REASON_HEADER] = claim.RejectionReason
+        returnValue[DAYS_UNTIL_PAYMENT_HEADER] = claim.DaysUntilPayment
         if (claim.RejectionReason === 'Other') {
           returnValue[REJECTION_REASON_HEADER] = claim.Note
         }
-        var expenseCount = 1
+        let expenseCount = 1
         claimExpenses.forEach(function (expense) {
           returnValue[CLAIM_EXPENSE_TYPE_HEADER + expenseCount] = claimExpenseTypes[expense.ExpenseType]
           returnValue[EXPENSE_APPROVED_COST_HEADER + expenseCount] = expense.ApprovedCost ? expense.ApprovedCost : 0
