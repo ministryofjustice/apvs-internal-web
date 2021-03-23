@@ -39,6 +39,8 @@ const getRejectionReasons = require('../../services/data/get-rejection-reasons')
 const getRejectionReasonId = require('../../services/data/get-rejection-reason-id')
 const MAX_APPROVER_TOTAL = require('../config').MAX_APPROVER_TOTAL
 const updateVisitorBenefitExpiryDate = require('../../services/data/update-visitor-benefit-expiry-date')
+const applicationRoles = require('../../constants/application-roles-enum')
+const log = require('../../services/log')
 
 let claimExpenses
 let claimDeductions
@@ -46,10 +48,18 @@ let claimDeductions
 module.exports = function (router) {
   // GET
   router.get('/claim/:claimId', function (req, res) {
-    authorisation.isCaseworker(req)
+    const allowedRoles = [
+      applicationRoles.CLAIM_ENTRY_BAND_2,
+      applicationRoles.CLAIM_PAYMENT_BAND_3,
+      applicationRoles.CASEWORK_MANAGER_BAND_5,
+      applicationRoles.BAND_9,
+      applicationRoles.APPLICATION_DEVELOPER
+    ]
+    authorisation.hasRoles(req, allowedRoles)
     return renderViewClaimPage(req.params.claimId, req, res)
   })
 
+  // APVS0246 Need Clarification on who can do this
   router.get('/claim/:claimId/download', function (req, res, next) {
     authorisation.isCaseworker(req)
 
@@ -76,7 +86,18 @@ module.exports = function (router) {
   // POST
   router.post('/claim/:claimId', function (req, res, next) {
     const needAssignmentCheck = true
-    return validatePostRequest(req, res, next, needAssignmentCheck, '/', function () {
+    let allowedRoles = []
+
+    if (req.body.decision === claimDecisionEnum.APPROVED || req.body.decision === claimDecisionEnum.REJECTED) {
+      allowedRoles.push(applicationRoles.CLAIM_PAYMENT_BAND_3)
+    } else if (req.body.decision === claimDecisionEnum.REQUEST_INFORMATION) {
+      allowedRoles = [
+        applicationRoles.CLAIM_PAYMENT_BAND_3,
+        applicationRoles.CASEWORK_MANAGER_BAND_5,
+        applicationRoles.BAND_9
+      ]
+    }
+    return validatePostRequest(req, res, next, allowedRoles, needAssignmentCheck, '/', function () {
       claimExpenses = getClaimExpenseResponses(req.body)
       return submitClaimDecision(req, res, claimExpenses)
     })
@@ -84,7 +105,8 @@ module.exports = function (router) {
 
   router.post('/claim/:claimId/add-deduction', function (req, res, next) {
     const needAssignmentCheck = true
-    return validatePostRequest(req, res, next, needAssignmentCheck, `/claim/${req.params.claimId}`, function () {
+    const allowedRoles = [applicationRoles.CLAIM_PAYMENT_BAND_3]
+    return validatePostRequest(req, res, next, allowedRoles, needAssignmentCheck, `/claim/${req.params.claimId}`, function () {
       const deductionType = req.body.deductionType
       // var amount = Number(req.body.deductionAmount).toFixed(2)
       const amount = req.body.deductionAmount
@@ -100,7 +122,8 @@ module.exports = function (router) {
 
   router.post('/claim/:claimId/remove-deduction', function (req, res, next) {
     const needAssignmentCheck = true
-    return validatePostRequest(req, res, next, needAssignmentCheck, `/claim/${req.params.claimId}`, function () {
+    const allowedRoles = [applicationRoles.CLAIM_PAYMENT_BAND_3]
+    return validatePostRequest(req, res, next, allowedRoles, needAssignmentCheck, `/claim/${req.params.claimId}`, function () {
       const removeDeductionId = getClaimDeductionId(req.body)
 
       return disableDeduction(removeDeductionId)
@@ -110,6 +133,7 @@ module.exports = function (router) {
     })
   })
 
+  // APVS0246 Need Clarification on who can do this
   router.post('/claim/:claimId/update-benefit-expiry-date', function (req, res, next) {
     const needAssignmentCheck = true
     return validatePostRequest(req, res, next, needAssignmentCheck, `/claim/${req.params.claimId}`, function () {
@@ -123,7 +147,8 @@ module.exports = function (router) {
 
   router.post('/claim/:claimId/update-overpayment-status', function (req, res, next) {
     const needAssignmentCheck = true
-    return validatePostRequest(req, res, next, needAssignmentCheck, `/claim/${req.params.claimId}`, function () {
+    const allowedRoles = [applicationRoles.CLAIM_PAYMENT_BAND_3]
+    return validatePostRequest(req, res, next, allowedRoles, needAssignmentCheck, `/claim/${req.params.claimId}`, function () {
       return getIndividualClaimDetails(req.params.claimId)
         .then(function (data) {
           const claim = data.claim
@@ -141,14 +166,24 @@ module.exports = function (router) {
 
   router.post('/claim/:claimId/close-advance-claim', function (req, res, next) {
     const needAssignmentCheck = true
-    return validatePostRequest(req, res, next, needAssignmentCheck, `/claim/${req.params.claimId}`, function () {
+    const allowedRoles = [
+      applicationRoles.CLAIM_PAYMENT_BAND_3,
+      applicationRoles.CASEWORK_MANAGER_BAND_5,
+      applicationRoles.BAND_9
+    ]
+    return validatePostRequest(req, res, next, allowedRoles, needAssignmentCheck, `/claim/${req.params.claimId}`, function () {
       return closeAdvanceClaim(req.params.claimId, req.body['close-advance-claim-reason'], req.user.email)
     })
   })
 
   router.post('/claim/:claimId/request-new-payment-details', function (req, res, next) {
     const needAssignmentCheck = true
-    return validatePostRequest(req, res, next, needAssignmentCheck, `/claim/${req.params.claimId}`, function () {
+    const allowedRoles = [
+      applicationRoles.CLAIM_PAYMENT_BAND_3,
+      applicationRoles.CASEWORK_MANAGER_BAND_5,
+      applicationRoles.BAND_9
+    ]
+    return validatePostRequest(req, res, next, allowedRoles, needAssignmentCheck, `/claim/${req.params.claimId}`, function () {
       return getIndividualClaimDetails(req.params.claimId)
         .then(function (data) {
           if (data.TopUps.allTopUpsPaid) {
@@ -162,7 +197,8 @@ module.exports = function (router) {
 
   router.post('/claim/:claimId/add-top-up', function (req, res, next) {
     const needAssignmentCheck = true
-    return validatePostRequest(req, res, next, needAssignmentCheck, `/claim/${req.params.claimId}`, function () {
+    const allowedRoles = [applicationRoles.CLAIM_PAYMENT_BAND_3]
+    return validatePostRequest(req, res, next, allowedRoles, needAssignmentCheck, `/claim/${req.params.claimId}`, function () {
       return getIndividualClaimDetails(req.params.claimId)
         .then(function (data) {
           if (data.claim.PaymentStatus === 'PROCESSED' && data.TopUps.allTopUpsPaid) {
@@ -183,7 +219,8 @@ module.exports = function (router) {
 
   router.post('/claim/:claimId/cancel-top-up', function (req, res, next) {
     const needAssignmentCheck = true
-    return validatePostRequest(req, res, next, needAssignmentCheck, `/claim/${req.params.claimId}`, function () {
+    const allowedRoles = [applicationRoles.CLAIM_PAYMENT_BAND_3]
+    return validatePostRequest(req, res, next, allowedRoles, needAssignmentCheck, `/claim/${req.params.claimId}`, function () {
       return getIndividualClaimDetails(req.params.claimId)
         .then(function (data) {
           const claim = data.claim
@@ -197,25 +234,41 @@ module.exports = function (router) {
 
   router.post('/claim/:claimId/payout-barcode-expired', function (req, res, next) {
     const needAssignmentCheck = true
-    return validatePostRequest(req, res, next, needAssignmentCheck, `/claim/${req.params.claimId}`, function () {
+    const allowedRoles = [
+      applicationRoles.CLAIM_PAYMENT_BAND_3,
+      applicationRoles.CASEWORK_MANAGER_BAND_5,
+      applicationRoles.BAND_9
+    ]
+    return validatePostRequest(req, res, next, allowedRoles, needAssignmentCheck, `/claim/${req.params.claimId}`, function () {
       return payoutBarcodeExpiredClaim(req.params.claimId, req.body['payout-barcode-expired-additional-information'])
     })
   })
 
   router.post('/claim/:claimId/disable-reference-number', function (req, res, next) {
     const needAssignmentCheck = true
-    return validatePostRequest(req, res, next, needAssignmentCheck, `/claim/${req.params.claimId}`, function () {
+    const allowedRoles = [
+      applicationRoles.CLAIM_PAYMENT_BAND_3,
+      applicationRoles.CASEWORK_MANAGER_BAND_5,
+      applicationRoles.BAND_9
+    ]
+    return validatePostRequest(req, res, next, allowedRoles, needAssignmentCheck, `/claim/${req.params.claimId}`, function () {
       return disableReferenceNumber(req.params.claimId, req.body.referenceToBeDisabled, req.body['disable-reference-number-additional-information'], req.user.email)
     })
   })
 
   router.post('/claim/:claimId/re-enable-reference-number', function (req, res, next) {
     const needAssignmentCheck = true
-    return validatePostRequest(req, res, next, needAssignmentCheck, `/claim/${req.params.claimId}`, function () {
+    const allowedRoles = [
+      applicationRoles.CLAIM_PAYMENT_BAND_3,
+      applicationRoles.CASEWORK_MANAGER_BAND_5,
+      applicationRoles.BAND_9
+    ]
+    return validatePostRequest(req, res, next, allowedRoles, needAssignmentCheck, `/claim/${req.params.claimId}`, function () {
       return reEnableReferenceNumber(req.params.claimId, req.body.referenceToBeReEnabled, req.body['re-enable-reference-number-additional-information'], req.user.email)
     })
   })
 
+  // APVS0246 Need Clarification on who can do this
   router.post('/claim/:claimId/insert-note', function (req, res, next) {
     const needAssignmentCheck = false
 
@@ -230,7 +283,12 @@ module.exports = function (router) {
 
   router.post('/claim/:claimId/assign-self', function (req, res, next) {
     const needAssignmentCheck = false
-    return validatePostRequest(req, res, next, needAssignmentCheck, `/claim/${req.params.claimId}`, function () {
+    const allowedRoles = [
+      applicationRoles.CLAIM_PAYMENT_BAND_3,
+      applicationRoles.CASEWORK_MANAGER_BAND_5,
+      applicationRoles.BAND_9
+    ]
+    return validatePostRequest(req, res, next, allowedRoles, needAssignmentCheck, `/claim/${req.params.claimId}`, function () {
       return updateAssignmentOfClaims(req.params.claimId, req.user.email)
         .then(function () {
           return false
@@ -240,7 +298,12 @@ module.exports = function (router) {
 
   router.post('/claim/:claimId/unassign', function (req, res, next) {
     const needAssignmentCheck = false
-    return validatePostRequest(req, res, next, needAssignmentCheck, `/claim/${req.params.claimId}`, function () {
+    const allowedRoles = [
+      applicationRoles.CLAIM_PAYMENT_BAND_3,
+      applicationRoles.CASEWORK_MANAGER_BAND_5,
+      applicationRoles.BAND_9
+    ]
+    return validatePostRequest(req, res, next, allowedRoles, needAssignmentCheck, `/claim/${req.params.claimId}`, function () {
       return updateAssignmentOfClaims(req.params.claimId, null)
     })
   })
@@ -257,9 +320,9 @@ function getClaimDeductionId (requestBody) {
 
   return deductionId
 }
-
-function validatePostRequest (req, res, next, needAssignmentCheck, redirectUrl, postFunction) {
-  authorisation.isCaseworker(req)
+// APVS0246 Going to need to pass in the required roles
+function validatePostRequest (req, res, next, allowedRoles, needAssignmentCheck, redirectUrl, postFunction) {
+  authorisation.hasRoles(req, allowedRoles)
   let updateConflict = true
 
   return Promise.try(function () {
