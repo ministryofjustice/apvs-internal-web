@@ -11,6 +11,9 @@ gulp.task('assets', function (done) {
 
   gulp.src('node_modules/govuk_template_jinja/assets/**/*')
     .pipe(gulp.dest('app/govuk_modules/govuk_template/', { overwrite: true }))
+
+  gulp.src('node_modules/moment/min/moment.min.js')
+    .pipe(gulp.dest('app/assets/javascripts', { overwrite: true }))
   done()
 })
 

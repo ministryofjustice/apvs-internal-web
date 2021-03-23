@@ -36,5 +36,12 @@ module.exports = {
   'top-up-amount': 'A Top-up amount',
   'top-up-reason': 'A Top-up reason',
   'benefit-expiry': 'Benefit Expiry Date',
-  'release-date-section': 'Release Date'
+  'release-date-section': 'Release Date',
+  'metric': 'Metric',
+  'year': 'Year',
+  'month': 'Month',
+  'quarter': 'Quarter',
+  'week': 'Week',
+  'country': 'Country',
+  'pendingReason': 'Pending Reason'
 }

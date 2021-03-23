@@ -28,5 +28,8 @@ module.exports = {
   getInvalidDateFormatMessage: function (displayName) { return `${displayName} was invalid` },
   getFutureDateMessage: function (displayName) { return `${displayName} must be in the future` },
   getExpiryDateIsRequired: function () { return 'Please enter the Benefit Expiry date' },
-  getReleaseDateIsRequired: function () { return 'Please enter the release date' }
+  getReleaseDateIsRequired: function () { return 'Please enter the release date' },
+  getFromDateIsRequired: function () { return 'Please enter the start date' },
+  getToDateIsRequired: function () { return 'Please enter the end date' },
+  getBreakdownByIsRequired: function () { return 'Please select how you would like the claims broken down' }, 
 }
