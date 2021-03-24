@@ -16,7 +16,7 @@
   <form action="/claim/{{ Claim['ClaimId'] }}" method="post" class="form">
     {% include "partials/csrf-hidden-input.html" %}
     <input type="hidden" name="lastUpdated" value="{{ Claim['lastUpdatedHidden'] }}">
-    <input type="hidden" id="isAdminApprover" name="isAdminApprover" value="{{ isAdminApprover }}">
+    <input type="hidden" id="isBand5" name="isBand5" value="{{ isBand5 }}">
     <input type="hidden" id="maxTotal" name="maxTotal" value="{{ maxTotal }}">
     <div>
       {% if Claim['AssignedTo'] %}

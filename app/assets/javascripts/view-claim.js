@@ -1,4 +1,4 @@
-$(function () {
+$(document).ready(function () {
   totalApproved()
 
   if (document.getElementById('additional-info-reject') !== null) {
@@ -102,7 +102,7 @@ function totalApproved () {
 
   var maxTotal = parseFloat(document.getElementById('maxTotal').value)
   $('.claim-expense-approvedCostText').text('£' + (approvedCost + manuallyProcessed).toFixed(2))
-  if (approvedCost + manuallyProcessed > maxTotal && (document.getElementById('isAdminApprover').value === 'false')) {
+  if (approvedCost + manuallyProcessed > maxTotal && (document.getElementById('isBand5').value === 'false')) {
     $('#accept-input-label').removeClass('selected')
     $('#accept-input-label').hide()
     $('#accept-input').addClass('js-hidden')

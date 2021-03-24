@@ -7,20 +7,25 @@ function isAuthenticated (req) {
   }
 }
 
-function hasRoles (req, roles) {
+function hasRoles (req, roles, throwError = true) {
   isAuthenticated(req)
 
   let hasDesiredRole = false
   roles.forEach(function (role) {
     if (req.user.roles.includes(role)) {
       hasDesiredRole = true
-      return
+      return true
     }
   })
-  if (!hasDesiredRole) {
-    const error = new Error('unauthorised')
-    error.status = 403
-    throw error
+  if (throwError) {
+    if (!hasDesiredRole) {
+      const error = new Error('unauthorised')
+      error.status = 403
+      console.log('Error')
+      throw error
+    }
+  } else {
+    return hasDesiredRole
   }
 }
 
@@ -54,25 +59,8 @@ function isCaseworker (req) {
   }
 }
 
-function isAdminApproverNoError (req) {
-  isAuthenticated(req)
-  return req.user.roles.includes('adminApprover')
-}
-
-function isAdminApprover (req) {
-  isAuthenticated(req)
-
-  if (!req.user.roles.includes('adminApprover')) {
-    var error = new Error('unauthorised')
-    error.status = 403
-    throw error
-  }
-}
-
 module.exports.isAuthenticated = isAuthenticated
 module.exports.isAdmin = isAdmin
 module.exports.isSscl = isSscl
 module.exports.isCaseworker = isCaseworker
-module.exports.isAdminApprover = isAdminApprover
-module.exports.isAdminApproverNoError = isAdminApproverNoError
 module.exports.hasRoles = hasRoles

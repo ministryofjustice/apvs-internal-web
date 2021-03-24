@@ -37,10 +37,9 @@ const checkUserAssignment = require('../../services/check-user-assignment')
 const Promise = require('bluebird')
 const getRejectionReasons = require('../../services/data/get-rejection-reasons')
 const getRejectionReasonId = require('../../services/data/get-rejection-reason-id')
-const MAX_APPROVER_TOTAL = require('../config').MAX_APPROVER_TOTAL
+const MAX_APPROVER_TOTAL = require('../../../config').MAX_APPROVER_TOTAL
 const updateVisitorBenefitExpiryDate = require('../../services/data/update-visitor-benefit-expiry-date')
 const applicationRoles = require('../../constants/application-roles-enum')
-const log = require('../../services/log')
 
 let claimExpenses
 let claimDeductions
@@ -88,7 +87,7 @@ module.exports = function (router) {
     const needAssignmentCheck = true
     let allowedRoles = []
 
-    if (req.body.decision === claimDecisionEnum.APPROVED || req.body.decision === claimDecisionEnum.REJECTED) {
+    if (req.body.decision === claimDecisionEnum.APPROVED || req.body.decision === claimDecisionEnum.REJECTED || req.body.decision === claimDecisionEnum.PENDING_SENIOR_MANAGER) {
       allowedRoles.push(applicationRoles.CLAIM_PAYMENT_BAND_3)
     } else if (req.body.decision === claimDecisionEnum.REQUEST_INFORMATION) {
       allowedRoles = [
@@ -97,10 +96,23 @@ module.exports = function (router) {
         applicationRoles.BAND_9
       ]
     }
-    return validatePostRequest(req, res, next, allowedRoles, needAssignmentCheck, '/', function () {
-      claimExpenses = getClaimExpenseResponses(req.body)
-      return submitClaimDecision(req, res, claimExpenses)
-    })
+    return Promise.try(function () {
+      return getIndividualClaimDetails(req.params.claimId)
+        .then(function (claim) {
+          if (claim.claim.Status === claimDecisionEnum.PENDING_SENIOR_MANAGER && (req.body.decision === claimDecisionEnum.APPROVED || req.body.decision === claimDecisionEnum.REJECTED || req.body.decision === claimDecisionEnum.REQUEST_INFORMATION)) {
+            allowedRoles = [
+              applicationRoles.CASEWORK_MANAGER_BAND_5
+            ]
+          }
+          return validatePostRequest(req, res, next, allowedRoles, needAssignmentCheck, '/', function () {
+            claimExpenses = getClaimExpenseResponses(req.body)
+            return submitClaimDecision(req, res, claimExpenses)
+          })
+        })
+      })
+      .catch(function (error) {
+        return handleError(error, req, res, false, next)
+      })
   })
 
   router.post('/claim/:claimId/add-deduction', function (req, res, next) {
@@ -322,7 +334,12 @@ function getClaimDeductionId (requestBody) {
 }
 // APVS0246 Going to need to pass in the required roles
 function validatePostRequest (req, res, next, allowedRoles, needAssignmentCheck, redirectUrl, postFunction) {
-  authorisation.hasRoles(req, allowedRoles)
+  try {
+    authorisation.hasRoles(req, allowedRoles)
+  }
+  catch (error) {
+    throw error
+  }
   let updateConflict = true
 
   return Promise.try(function () {
@@ -373,7 +390,7 @@ function submitClaimDecision (req, res, claimExpenses) {
             req.body['release-day'],
             req.body['release-month'],
             req.body['release-year'],
-            authorisation.isAdminApproverNoError(req)
+            authorisation.hasRoles(req, [applicationRoles.CASEWORK_MANAGER_BAND_5], false)
           )
           return SubmitClaimResponse(req.params.claimId, claimDecision)
             .then(function () {
@@ -498,7 +515,7 @@ function renderValues (data, req, error) {
     claimDecisionEnum: claimDecisionEnum,
     errors: error.validationErrors,
     unlock: checkUserAssignment(req.user.email, data.claim.AssignedTo, data.claim.AssignmentExpiry),
-    isAdminApprover: authorisation.isAdminApproverNoError(req),
+    isBand5: authorisation.hasRoles(req, [applicationRoles.CASEWORK_MANAGER_BAND_5], false),
     maxTotal: MAX_APPROVER_TOTAL,
     latestUnpaidTopUp: data.latestUnpaidTopUp,
     topUpAmount: req.body['top-up-amount'],

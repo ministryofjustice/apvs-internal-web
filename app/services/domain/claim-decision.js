@@ -31,7 +31,7 @@ class ClaimDecision {
     releaseDay,
     releaseMonth,
     releaseYear,
-    isAdminApprover) {
+    isBand5) {
     this.caseworker = caseworker
     this.assistedDigitalCaseworker = assistedDigitalCaseworker
     this.rejectionReasonId = null
@@ -68,7 +68,7 @@ class ClaimDecision {
     })
     this.claimDeductionResponses = claimDeductionResponses
     this.isAdvanceClaim = isAdvanceClaim
-    this.isAdminApprover = isAdminApprover
+    this.isBand5 = isBand5
     this.expiryDateFields = [
       expiryDay,
       expiryMonth,
@@ -148,7 +148,7 @@ class ClaimDecision {
 
     if (total > parseFloat(MAX_APPROVER_TOTAL)) {
       if (this.decision === claimDecisionEnum.APPROVED) {
-        if (!this.isAdminApprover) {
+        if (!this.isBand5) {
           throw new ValidationError({'assisted-digital-caseworker': [ERROR_MESSAGES.caseworkerIsNotAnAdminApprover]})
         }
       }
