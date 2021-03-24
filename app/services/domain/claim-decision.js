@@ -149,7 +149,7 @@ class ClaimDecision {
     if (total > parseFloat(MAX_APPROVER_TOTAL)) {
       if (this.decision === claimDecisionEnum.APPROVED) {
         if (!this.isBand5) {
-          throw new ValidationError({'assisted-digital-caseworker': [ERROR_MESSAGES.caseworkerIsNotAnAdminApprover]})
+          throw new ValidationError({ 'assisted-digital-caseworker': [ERROR_MESSAGES.caseworkerIsNotAnAdminApprover] })
         }
       }
     }

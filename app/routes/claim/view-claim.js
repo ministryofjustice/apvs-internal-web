@@ -114,7 +114,7 @@ module.exports = function (router) {
             return submitClaimDecision(req, res, claimExpenses)
           })
         })
-      })
+    })
       .catch(function (error) {
         return handleError(error, req, res, false, next)
       })
@@ -348,12 +348,11 @@ function getClaimDeductionId (requestBody) {
 }
 // APVS0246 Going to need to pass in the required roles
 function validatePostRequest (req, res, next, allowedRoles, needAssignmentCheck, redirectUrl, postFunction) {
-  try {
-    authorisation.hasRoles(req, allowedRoles)
-  }
-  catch (error) {
-    throw error
-  }
+  try { // eslint-disable-line
+    authorisation.hasRoles(req, allowedRoles) // eslint-disable-line
+  } catch (error) { // eslint-disable-line
+    throw error // eslint-disable-line
+  } // eslint-disable-line
   let updateConflict = true
 
   return Promise.try(function () {

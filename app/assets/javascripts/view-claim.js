@@ -100,7 +100,7 @@ function totalApproved () {
     })
   }
 
-  var maxTotal = parseFloat(document.getElementById('maxTotal').value)
+  const maxTotal = parseFloat(document.getElementById('maxTotal').value)
   $('.claim-expense-approvedCostText').text('£' + (approvedCost + manuallyProcessed).toFixed(2))
   if (approvedCost + manuallyProcessed > maxTotal && (document.getElementById('isBand5').value === 'false')) {
     $('#accept-input-label').removeClass('selected')
