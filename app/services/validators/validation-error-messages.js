@@ -31,5 +31,5 @@ module.exports = {
   getReleaseDateIsRequired: function () { return 'Please enter the release date' },
   getFromDateIsRequired: function () { return 'Please enter the start date' },
   getToDateIsRequired: function () { return 'Please enter the end date' },
-  getBreakdownByIsRequired: function () { return 'Please select how you would like the claims broken down' }, 
+  getBreakdownByIsRequired: function () { return 'Please select how you would like the claims broken down' }
 }

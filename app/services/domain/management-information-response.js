@@ -3,10 +3,9 @@ const FieldValidator = require('../validators/field-validator')
 const ErrorHandler = require('../validators/error-handler')
 const dateFormatter = require('../date-formatter')
 const ERROR_MESSAGES = require('../validators/validation-error-messages')
-const { ERROR } = require('bunyan')
 
 class ManagementInformationResponse {
-  constructor (metric, fromDay, fromMonth, fromYear, toDay, toMonth, toYear, breakdownBy, year, month, quarter, week, country) {
+  constructor (metric, fromDay, fromMonth, fromYear, toDay, toMonth, toYear, breakdownBy, year, month, quarter, week, country, pendingReason) {
     this.metric = metric
     this.fromDay = fromDay
     this.fromMonth = fromMonth
@@ -20,6 +19,7 @@ class ManagementInformationResponse {
     this.quarter = quarter
     this.week = week
     this.country = country
+    this.pendingReason = pendingReason
 
     this.fromDateFields = [
       fromDay,
@@ -50,34 +50,34 @@ class ManagementInformationResponse {
     FieldValidator(this.toDateFields, 'to', errors)
       .isDateRequired(ERROR_MESSAGES.getToDateIsRequired)
       .isValidDate(this.toDate)
-  
+
     FieldValidator(this.breakdownBy, 'breakdownBy', errors)
       .isRequired(ERROR_MESSAGES.getBreakdownByIsRequired)
-    
+
     if (this.breakdownBy === 'year') {
       FieldValidator(this.year, 'year', errors)
-      .isRequired()
+        .isRequired()
     }
 
     if (this.breakdownBy === 'month') {
       FieldValidator(this.month, 'month', errors)
-      .isRequired()
+        .isRequired()
     }
-    
+
     if (this.breakdownBy === 'quarter') {
       FieldValidator(this.quarter, 'quarter', errors)
-      .isRequired()
+        .isRequired()
     }
 
     if (this.breakdownBy === 'week') {
       FieldValidator(this.quarter, 'week', errors)
-      .isRequired()
+        .isRequired()
     }
 
     FieldValidator(this.country, 'country', errors)
       .isRequired()
 
-    if (this.metric = 'pending') {
+    if (this.metric === 'pending') {
       FieldValidator(this.pendingReason, 'pendingReason', errors)
         .isRequired()
     }

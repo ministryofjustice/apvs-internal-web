@@ -1,23 +1,14 @@
 $(document).ready(function () {
+  populateMetrics()
+  populateBreakdownBy()
+
+  search = document.getElementById('rawQuery').value
+  if (search) {
+    search = JSON.parse(search)
+  }
+
   $('#breakdownBy').change(function () {
-    const breakdownBy = $('#breakdownBy').val()
-    $('.breakdownByDivs').hide()
-    if (breakdownBy === 'year') {
-      $('#yearDiv').show()
-      populateYears()
-    }
-    if (breakdownBy === 'month') {
-      $('#monthDiv').show()
-      populateMonths()
-    }
-    if (breakdownBy === 'quarter') {
-      $('#quarterDiv').show()
-      populateQuarters()
-    }
-    if (breakdownBy === 'week') {
-      $('#weekDiv').show()
-      populateWeeks()
-    }
+    populateBreakdownBy()
   })
 
   $('.date-input').change(function () {
@@ -39,12 +30,7 @@ $(document).ready(function () {
   })
 
   $('#metric').change(function () {
-    const metric = $('#metric').val()
-    if (metric === 'pending') {
-      $('#pendingReasonDiv').show()
-    } else {
-      $('#pendingReasonDiv').hide()
-    }
+    populateMetrics()
   })
 })
 
@@ -56,23 +42,29 @@ function populateYears () {
   const toMonth = $('#toMonth').val()
   const toYear = $('#toYear').val()
 
-  console.log(fromYear + '-' + fromMonth + '-' + fromDay)
-  console.log(toYear + '-' + toMonth + '-' + toDay)
   try {
     const fromDate = moment(fromYear + '-' + fromMonth + '-' + fromDay)
     const toDate = moment(toYear + '-' + toMonth + '-' + toDay)
 
-
     if (toDate.isSameOrAfter(fromDate)) {
       $('#year').empty()
         .append('<option value="select" disabled selected>Select</option>')
-      let now = fromDate.clone().startOf('year')
+      const now = fromDate.clone().startOf('year')
+      let search = document.getElementById('rawQuery').value
+      if (search) {
+        search = JSON.parse(search)
+      }
       while (now.isSameOrBefore(toDate)) {
         if (now.year() >= 2017) {
-          $('#year').append(new Option(
-            now.clone().format('YYYY'),
-            now.clone().format('YYYY-MM-DD') + ',' + now.clone().endOf('year').format('YYYY-MM-DD')
-          ))
+          const yearValue = now.clone().format('YYYY-MM-DD') + ',' + now.clone().endOf('year').format('YYYY-MM-DD')
+
+          if (search) {
+            if (search.year === yearValue) {
+              $('#year').append('<option value="' + yearValue + '" selected>' + now.clone().format('YYYY') + '</option>')
+            } else {
+              $('#year').append('<option value="' + yearValue + '">' + now.clone().format('YYYY') + '</option>')
+            }
+          }
         }
         now.add(1, 'year')
       }
@@ -97,7 +89,7 @@ function populateMonths () {
     if (toDate.isSameOrAfter(fromDate)) {
       $('#month').empty()
         .append('<option value="select" disabled selected>Select</option>')
-      let now = fromDate.clone().startOf('month')
+      const now = fromDate.clone().startOf('month')
       while (now.isSameOrBefore(toDate)) {
         if (now.year() >= 2017) {
           $('#month').append(new Option(
@@ -128,7 +120,7 @@ function populateQuarters () {
     if (toDate.isSameOrAfter(fromDate)) {
       $('#quarter').empty()
         .append('<option value="select" disabled selected>Select</option>')
-      let now = fromDate.clone().startOf('quarter')
+      const now = fromDate.clone().startOf('quarter')
       while (now.isSameOrBefore(toDate)) {
         if (now.year() >= 2017) {
           $('#quarter').append(new Option(
@@ -159,7 +151,7 @@ function populateWeeks () {
     if (toDate.isSameOrAfter(fromDate)) {
       $('#week').empty()
         .append('<option value="select" disabled selected>Select</option>')
-      let now = fromDate.clone().startOf('week').add(1, 'day')
+      const now = fromDate.clone().startOf('week').add(1, 'day')
       while (now.isSameOrBefore(toDate)) {
         if (now.year() >= 2017) {
           $('#week').append(new Option(
@@ -172,5 +164,35 @@ function populateWeeks () {
     }
   } catch (error) {
     console.error(error)
+  }
+}
+
+function populateMetrics () {
+  const metric = $('#metric').val()
+  if (metric === 'pending') {
+    $('#pendingReasonDiv').show()
+  } else {
+    $('#pendingReasonDiv').hide()
+  }
+}
+
+function populateBreakdownBy () {
+  const breakdownBy = $('#breakdownBy').val()
+  $('.breakdownByDivs').hide()
+  if (breakdownBy === 'year') {
+    $('#yearDiv').show()
+    populateYears()
+  }
+  if (breakdownBy === 'month') {
+    $('#monthDiv').show()
+    populateMonths()
+  }
+  if (breakdownBy === 'quarter') {
+    $('#quarterDiv').show()
+    populateQuarters()
+  }
+  if (breakdownBy === 'week') {
+    $('#weekDiv').show()
+    populateWeeks()
   }
 }

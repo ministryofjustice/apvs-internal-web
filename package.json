@@ -32,7 +32,9 @@
     "ignore": [
       "cache_node_modules/*",
       "jquery*.js",
-      "ga.js"
+      "ga.js",
+      "app/assets/javascripts/*.js",
+      "app/public/javascripts/*.js"
     ],
     "globals": [
       "describe",

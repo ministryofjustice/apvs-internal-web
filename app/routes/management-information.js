@@ -1,17 +1,21 @@
 const authorisation = require('../services/authorisation')
 const getDashboardData = require('../services/data/dashboard/get-dashboard-data')
 const dashboardFilterEnum = require('../constants/dashboard-filter-enum')
-const dateFormatter = require('../services/date-formatter')
 const ValidationError = require('../services/errors/validation-error')
-const log = require('../services/log')
+// const log = require('../services/log')
 const getClaimListForManagementInformation = require('../services/data/get-claim-list-for-management-information')
 const ManagementInformationResponse = require('../services/domain/management-information-response')
+const applicationRoles = require('../constants/application-roles-enum')
+const allowedRoles = [
+  applicationRoles.CASEWORK_MANAGER_BAND_5,
+  applicationRoles.BAND_9
+]
 
 module.exports = function (router) {
   router.get('/management-information', function (req, res) {
-    authorisation.isCaseworker(req)
+    authorisation.hasRoles(req, allowedRoles)
 
-    var filter = req.query.filter || dashboardFilterEnum.TODAY
+    const filter = req.query.filter || dashboardFilterEnum.TODAY
 
     return getDashboardData(filter)
       .then(function (dashboardData) {
@@ -22,17 +26,16 @@ module.exports = function (router) {
           autoApprovedCount: dashboardData.autoApproved,
           manuallyApprovedCount: dashboardData.manuallyApproved,
           rejectedCount: dashboardData.rejected,
-          filterMonths: getFilterMonths(),
           activeFilter: filter
         })
       })
   })
 
   router.post('/management-information', function (req, res) {
-    authorisation.isCaseworker(req)
+    authorisation.hasRoles(req, allowedRoles)
 
     try {
-      const managementInformationResponse = new ManagementInformationResponse(
+      const managementInformationResponse = new ManagementInformationResponse( //eslint-disable-line
         req.body.metric,
         req.body.fromDay,
         req.body.fromMonth,
@@ -45,7 +48,8 @@ module.exports = function (router) {
         req.body.month,
         req.body.quarter,
         req.body.week,
-        req.body.country
+        req.body.country,
+        req.body.pendingReason
       )
     } catch (error) {
       if (error instanceof ValidationError) {
@@ -69,43 +73,29 @@ module.exports = function (router) {
   })
 
   router.post('/management-information/search', function (req, res, next) {
-    authorisation.isCaseworker(req)
+    authorisation.hasRoles(req, allowedRoles)
     // TODO Add Validation
 
     return getClaimListForManagementInformation(req.body, parseInt(req.body.start), parseInt(req.body.length))
-    .then(function (data) {
-      const claims = data.claims
-      if (claims.length === 0) {
+      .then(function (data) {
+        const claims = data.claims
+        if (claims.length === 0) {
+          return res.json({
+            draw: 0,
+            recordsTotal: 0,
+            recordsFiltered: 0,
+            claims: claims
+          })
+        }
+
         return res.json({
-          draw: 0,
-          recordsTotal: 0,
-          recordsFiltered: 0,
+          draw: req.body.draw,
+          recordsTotal: data.total.Count,
+          recordsFiltered: data.total.Count,
           claims: claims
         })
-      }
-
-      return res.json({
-        draw: req.body.draw,
-        recordsTotal: data.total.Count,
-        recordsFiltered: data.total.Count,
-        claims: claims
+      }).catch(function (error) {
+        next(error)
       })
-    }).catch(function (error) {
-      next(error)
-    })
   })
-}
-
-function getFilterMonths () {
-  var oneMonthAgo = dateFormatter.now().subtract(1, 'months').format('MMMM')
-  var twoMonthsAgo = dateFormatter.now().subtract(2, 'months').format('MMMM')
-  var threeMonthsAgo = dateFormatter.now().subtract(3, 'months').format('MMMM')
-  var fourMonthsAgo = dateFormatter.now().subtract(4, 'months').format('MMMM')
-
-  return {
-    oneMonthAgo: oneMonthAgo,
-    twoMonthsAgo: twoMonthsAgo,
-    threeMonthsAgo: threeMonthsAgo,
-    fourMonthsAgo: fourMonthsAgo
-  }
 }

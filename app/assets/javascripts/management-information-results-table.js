@@ -4,13 +4,12 @@ function cleanColumnOutput (data, type, row) {
 }
 
 $(document).ready(function () {
-
   search = document.getElementById('rawQuery').value
   if (search) {
     search = JSON.parse(search)
   }
 
-  var startSearching = document.getElementById('startSearching').value
+  const startSearching = document.getElementById('startSearching').value
 
   if (startSearching === 'true') {
     // $('#search-results-header').show()

@@ -35,29 +35,64 @@ module.exports = function (query, offset, limit) {
 
   let columns = []
   let dateField
+  let knexQuery
+  let knexCountQuery
+  let pendingReason
   if (query.metric === 'received') {
     columns = ['Claim.Reference', 'Visitor.FirstName', 'Visitor.LastName', 'Claim.Caseworker AS AssignedTo', 'Claim.DateSubmitted', 'Claim.ClaimId', 'Claim.Status']
     dateField = 'Claim.DateSubmitted'
+
+    knexCountQuery = knex('Claim')
+      .join('Visitor', 'Claim.EligibilityId', '=', 'Visitor.EligibilityId')
+      .where(dateField, '>=', startDate.format('YYYY-MM-DD'))
+      .where(dateField, '<=', endDate.format('YYYY-MM-DD'))
+      .whereIn('Visitor.Country', country)
+      .count('Claim.ClaimId AS Count')
+
+    knexQuery = knex('Claim')
+      .join('Visitor', 'Claim.EligibilityId', '=', 'Visitor.EligibilityId')
+      .where(dateField, '>=', startDate.format('YYYY-MM-DD'))
+      .where(dateField, '<=', endDate.format('YYYY-MM-DD'))
+      .whereIn('Visitor.Country', country)
+      .columns(columns)
+      .orderBy('Claim.DateSubmitted', 'asc')
+      .offset(offset)
   } else if (query.metric === 'pending') {
+    if (query.pendingReason === 'informationRequested') {
+      pendingReason = claimStatusEnum.REQUEST_INFORMATION.value
+    } else if (query.pendingReason === 'incompleteInformation') {
+      pendingReason = claimStatusEnum.PENDING.value
+    } else if (query.pendingReason === 'paymentInformationRequested') {
+      pendingReason = claimStatusEnum.REQUEST_INFO_PAYMENT.value
+    } else {
+      throw new error('Invalid pending reason received')
+    }
+
     columns = ['Claim.Reference', 'Visitor.FirstName', 'Visitor.LastName', 'Claim.Caseworker AS AssignedTo', 'Claim.DateSubmitted', 'Claim.ClaimId', 'Claim.Status']
     dateField = 'Claim.LastUpdated'
+
+    knexCountQuery = knex('Claim')
+      .join('Visitor', 'Claim.EligibilityId', '=', 'Visitor.EligibilityId')
+      .where(dateField, '>=', startDate.format('YYYY-MM-DD'))
+      .where(dateField, '<=', endDate.format('YYYY-MM-DD'))
+      .where('Claim.Status', pendingReason)
+      .whereIn('Visitor.Country', country)
+      .count('Claim.ClaimId AS Count')
+
+    knexQuery = knex('Claim')
+      .join('Visitor', 'Claim.EligibilityId', '=', 'Visitor.EligibilityId')
+      .where(dateField, '>=', startDate.format('YYYY-MM-DD'))
+      .where(dateField, '<=', endDate.format('YYYY-MM-DD'))
+      .where('Claim.Status', pendingReason)
+      .whereIn('Visitor.Country', country)
+      .columns(columns)
+      .orderBy('Claim.DateSubmitted', 'asc')
+      .offset(offset)
   }
 
-  return knex('Claim')
-    .join('Visitor', 'Claim.EligibilityId', '=', 'Visitor.EligibilityId')
-    .where(dateField, '>=', startDate.format('YYYY-MM-DD'))
-    .where(dateField, '<=', endDate.format('YYYY-MM-DD'))
-    .whereIn('Visitor.Country', country)
-    .count('Claim.ClaimId AS Count')
+  return knexCountQuery
     .then(function (count) {
-      return knex('Claim')
-        .join('Visitor', 'Claim.EligibilityId', '=', 'Visitor.EligibilityId')
-        .where(dateField, '>=', startDate.format('YYYY-MM-DD'))
-        .where(dateField, '<=', endDate.format('YYYY-MM-DD'))
-        .whereIn('Visitor.Country', country)
-        .columns(columns)
-        .orderBy('Claim.DateSubmitted', 'asc')
-        .offset(offset)
+      return knexQuery
         .then(function (claims) {
           var claimsToReturn = []
           return Promise.each(claims, function (claim) {
