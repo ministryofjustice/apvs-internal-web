@@ -10,10 +10,24 @@ describe('services/domain/claim-decision', function () {
   const VALID_DECISION_REJECTED = 'REJECTED'
   const VALID_DECISION_REQUESTED = 'REQUEST_INFORMATION'
   const VALID_DECISION_APPROVED = 'APPROVED'
+  const VALID_DECISION_REFER = 'PENDING-SENIOR-MANAGER'
   const VALID_NOTE_REJECTION = 'rejection note'
   const VALID_CLAIMEXPENSES = [{ claimExpenseId: '1', approvedCost: '20.00', cost: '20.00', status: 'APPROVED' }]
   const VALID_CLAIMEXPENSES_REJECTED = [{ claimExpenseId: '1', approvedCost: '20.00', cost: '20.00', status: 'REJECTED' }]
   const INVALID_CLAIMEXPENSES = [{ claimExpenseId: '1', approvedCost: '20.00', cost: '-1', status: 'APPROVED' }]
+  const APPROVED_CLAIM_EXPENSES_OVER_250 = [
+    { claimExpenseId: '1', approvedCost: '100.00', cost: '100.00', status: 'APPROVED' },
+    { claimExpenseId: '2', approvedCost: '50.00', cost: '50.00', status: 'APPROVED' },
+    { claimExpenseId: '3', approvedCost: '75.00', cost: '75.00', status: 'APPROVED' },
+    { claimExpenseId: '4', approvedCost: '100.00', cost: '100.00', status: 'APPROVED' }
+  ]
+
+  const REJECTED_CLAIM_EXPENSES_OVER_250 = [
+    { claimExpenseId: '1', approvedCost: '0.00', cost: '100.00', status: 'REJECTED' },
+    { claimExpenseId: '2', approvedCost: '0.00', cost: '50.00', status: 'REJECTED' },
+    { claimExpenseId: '3', approvedCost: '0.00', cost: '75.00', status: 'REJECTED' },
+    { claimExpenseId: '4', approvedCost: '0.00', cost: '100.00', status: 'REJECTED' }
+  ]
   const VALID_CLAIMDEDUCTION = [{ Amount: '10.00' }]
   const VALID_NOMIS_CHECK = 'APPROVED'
   const VALID_DWP_CHECK = 'APPROVED'
@@ -124,6 +138,41 @@ describe('services/domain/claim-decision', function () {
       expect(e).to.be.instanceof(ValidationError)
       expect(e.validationErrors['claim-expenses'][0]).to.equal('At least one expense must not be rejected for the claim to be approved')
     }
+  })
+
+  it('should return error if approving a claim >£250 when not band 5', function () {
+    try {
+      claimDecision = new ClaimDecision(VALID_CASEWORKER, '', VALID_DECISION_APPROVED, '', '', '', '', '', VALID_VISIT_CONFIRMATION_CHECK, APPROVED_CLAIM_EXPENSES_OVER_250, VALID_CLAIMDEDUCTION, NOT_ADVANCE_CLAIM, null, null, futureDay, futureMonth, futureYear, null, null, null, null, null, false)
+      expect(false, 'should have thrown validation error').to.be.true //eslint-disable-line
+    } catch (e) {
+      expect(e).to.be.instanceof(ValidationError)
+      expect(e.validationErrors['assisted-digital-caseworker'][0]).to.equal('You are not authorised to approve this claim')
+    }
+  })
+
+  it('should return error if referring to senior manager with all expenses rejected', function () {
+    try {
+      claimDecision = new ClaimDecision(VALID_CASEWORKER, '', VALID_DECISION_REFER, '', '', '', '', '', VALID_VISIT_CONFIRMATION_CHECK, VALID_CLAIMEXPENSES_REJECTED, VALID_CLAIMDEDUCTION, NOT_ADVANCE_CLAIM, null, null, futureDay, futureMonth, futureYear)
+      expect(false, 'should have thrown validation error').to.be.true //eslint-disable-line
+    } catch (e) {
+      expect(e).to.be.instanceof(ValidationError)
+      expect(e.validationErrors['claim-expenses'][0]).to.equal('At least one expense must not be rejected for the claim to be referred to a senior manager')
+    }
+  })
+
+  it('should construct a domain object approving a claim >£250 when band 5', function () {
+    claimDecision = new ClaimDecision(VALID_CASEWORKER, VALID_ASSISTED_DIGITAL_CASEWORKER, VALID_DECISION_APPROVED, '', '', '', VALID_NOMIS_CHECK, VALID_DWP_CHECK, VALID_VISIT_CONFIRMATION_CHECK, APPROVED_CLAIM_EXPENSES_OVER_250, VALID_CLAIMDEDUCTION, NOT_ADVANCE_CLAIM, null, null, futureDay, futureMonth, futureYear, null, null, null, null, null, true)
+    expect(claimDecision.decision).to.equal(VALID_DECISION_APPROVED)
+  })
+
+  it('should construct a domain object rejecting a claim >£250 when band 5', function () {
+    claimDecision = new ClaimDecision(VALID_CASEWORKER, VALID_ASSISTED_DIGITAL_CASEWORKER, VALID_DECISION_REJECTED, '', '', 'TEST REJECTION REASON', VALID_NOMIS_CHECK, VALID_DWP_CHECK, VALID_VISIT_CONFIRMATION_CHECK, REJECTED_CLAIM_EXPENSES_OVER_250, VALID_CLAIMDEDUCTION, NOT_ADVANCE_CLAIM, null, null, futureDay, futureMonth, futureYear, null, null, null, null, null, true)
+    expect(claimDecision.decision).to.equal(VALID_DECISION_REJECTED)
+  })
+
+  it('should construct a domain object referring a claim >£250 when not band 5', function () {
+    claimDecision = new ClaimDecision(VALID_CASEWORKER, VALID_ASSISTED_DIGITAL_CASEWORKER, VALID_DECISION_REFER, '', '', '', VALID_NOMIS_CHECK, VALID_DWP_CHECK, VALID_VISIT_CONFIRMATION_CHECK, APPROVED_CLAIM_EXPENSES_OVER_250, VALID_CLAIMDEDUCTION, NOT_ADVANCE_CLAIM, null, null, futureDay, futureMonth, futureYear, null, null, null, null, 'Referring to senior manager', false)
+    expect(claimDecision.decision).to.equal(VALID_DECISION_REFER)
   })
 
   it('should return error if same caseworker as assisted digital caseworker', function () {

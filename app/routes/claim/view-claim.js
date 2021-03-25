@@ -387,7 +387,6 @@ function submitClaimDecision (req, res, claimExpenses) {
             req.body.additionalInfoApprove,
             req.body.additionalInfoRequest,
             req.body.additionalInfoReject,
-            req.body.additionalInfoRefer,
             req.body.nomisCheck,
             req.body.dwpCheck,
             req.body.visitConfirmationCheck,
@@ -403,6 +402,7 @@ function submitClaimDecision (req, res, claimExpenses) {
             req.body['release-day'],
             req.body['release-month'],
             req.body['release-year'],
+            req.body.additionalInfoRefer,
             authorisation.hasRoles(req, [applicationRoles.CASEWORK_MANAGER_BAND_5], false)
           )
           return SubmitClaimResponse(req.params.claimId, claimDecision)

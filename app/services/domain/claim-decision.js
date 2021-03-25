@@ -15,7 +15,6 @@ class ClaimDecision {
     additionalInfoApprove,
     additionalInfoRequest,
     additionalInfoReject,
-    additionalInfoRefer,
     nomisCheck,
     dwpCheck,
     visitConfirmationCheck,
@@ -31,6 +30,7 @@ class ClaimDecision {
     releaseDay,
     releaseMonth,
     releaseYear,
+    additionalInfoRefer,
     isBand5) {
     this.caseworker = caseworker
     this.assistedDigitalCaseworker = assistedDigitalCaseworker
@@ -136,6 +136,10 @@ class ClaimDecision {
 
     if (this.decision === claimDecisionEnum.APPROVED && allExpensesRejected) {
       errors.add('claim-expenses', ERROR_MESSAGES.getNonRejectedClaimExpenseResponse)
+    }
+
+    if (this.decision === claimDecisionEnum.PENDING_SENIOR_MANAGER && allExpensesRejected) {
+      errors.add('claim-expenses', ERROR_MESSAGES.getReferToSeniorManagerWithNoApprovedExpenses)
     }
 
     let totalDeductionCost = 0.00
