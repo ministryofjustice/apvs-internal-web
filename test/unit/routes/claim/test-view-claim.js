@@ -111,7 +111,7 @@ describe('routes/claim/view-claim', function () {
   let app
 
   beforeEach(function () {
-    authorisation = { isCaseworker: sinon.stub() }
+    authorisation = { hasRoles: sinon.stub() }
     stubGetIndividualClaimDetails = sinon.stub()
     stubSubmitClaimResponse = sinon.stub()
     stubClaimDecision = sinon.stub()
@@ -184,7 +184,7 @@ describe('routes/claim/view-claim', function () {
         .get('/claim/123')
         .expect(200)
         .expect(function () {
-          expect(authorisation.isCaseworker.calledOnce).to.be.true //eslint-disable-line
+          expect(authorisation.hasRoles.calledOnce).to.be.true //eslint-disable-line
           expect(stubGetIndividualClaimDetails.calledWith('123')).to.be.true //eslint-disable-line
         })
     })
@@ -205,7 +205,7 @@ describe('routes/claim/view-claim', function () {
         .send(VALID_DATA_APPROVE)
         .expect(302)
         .expect(function () {
-          expect(authorisation.isCaseworker.calledOnce).to.be.true //eslint-disable-line
+          expect(authorisation.hasRoles.calledOnce).to.be.true //eslint-disable-line
           expect(stubGetClaimLastUpdated.calledOnce).to.be.true //eslint-disable-line
           expect(stubCheckUserAndLastUpdated.calledOnce).to.be.true //eslint-disable-line
           expect(stubGetClaimExpenseResponses.calledOnce).to.be.true //eslint-disable-line
@@ -242,7 +242,7 @@ describe('routes/claim/view-claim', function () {
         .send(VALID_DATA_APPROVE)
         .expect(302)
         .expect(function () {
-          expect(authorisation.isCaseworker.calledOnce).to.be.true //eslint-disable-line
+          expect(authorisation.hasRoles.calledOnce).to.be.true //eslint-disable-line
           expect(stubGetClaimLastUpdated.calledOnce).to.be.true //eslint-disable-line
           expect(stubCheckUserAndLastUpdated.calledOnce).to.be.true //eslint-disable-line
           expect(stubGetClaimExpenseResponses.calledOnce).to.be.true //eslint-disable-line
@@ -262,7 +262,7 @@ describe('routes/claim/view-claim', function () {
         .send(VALID_DATA_APPROVE)
         .expect(400)
         .expect(function () {
-          expect(authorisation.isCaseworker.calledOnce).to.be.true //eslint-disable-line
+          expect(authorisation.hasRoles.calledOnce).to.be.true //eslint-disable-line
           expect(stubGetClaimLastUpdated.calledOnce).to.be.true //eslint-disable-line
           expect(stubCheckUserAndLastUpdated.calledOnce).to.be.true //eslint-disable-line
           expect(stubGetIndividualClaimDetails.calledWith('123')).to.be.true //eslint-disable-line
@@ -279,7 +279,7 @@ describe('routes/claim/view-claim', function () {
         .send(INCOMPLETE_DATA)
         .expect(400)
         .expect(function () {
-          expect(authorisation.isCaseworker.calledOnce).to.be.true //eslint-disable-line
+          expect(authorisation.hasRoles.calledOnce).to.be.true //eslint-disable-line
           expect(stubGetClaimLastUpdated.calledOnce).to.be.true //eslint-disable-line
           expect(stubCheckUserAndLastUpdated.calledOnce).to.be.true //eslint-disable-line
           expect(stubGetIndividualClaimDetails.calledWith('123')).to.be.true //eslint-disable-line
@@ -355,7 +355,7 @@ describe('routes/claim/view-claim', function () {
         .send(VALID_DATA_ADD_DEDUCTION)
         .expect(400)
         .expect(function () {
-          expect(authorisation.isCaseworker.calledOnce).to.be.true //eslint-disable-line
+          expect(authorisation.hasRoles.calledOnce).to.be.true //eslint-disable-line
           expect(stubGetClaimLastUpdated.calledOnce).to.be.true //eslint-disable-line
           expect(stubCheckUserAndLastUpdated.calledOnce).to.be.true //eslint-disable-line
           expect(stubGetIndividualClaimDetails.calledWith('123')).to.be.true //eslint-disable-line
@@ -378,7 +378,7 @@ describe('routes/claim/view-claim', function () {
         .send(VALID_DATA_ADD_DEDUCTION)
         .expect(400)
         .expect(function () {
-          expect(authorisation.isCaseworker.calledOnce).to.be.true //eslint-disable-line
+          expect(authorisation.hasRoles.calledOnce).to.be.true //eslint-disable-line
           expect(stubGetClaimLastUpdated.calledOnce).to.be.true //eslint-disable-line
           expect(stubCheckUserAndLastUpdated.calledOnce).to.be.true //eslint-disable-line
           expect(stubGetIndividualClaimDetails.calledWith('123')).to.be.true //eslint-disable-line
@@ -427,7 +427,7 @@ describe('routes/claim/view-claim', function () {
         .send(VALID_DATA_ADD_DEDUCTION)
         .expect(400)
         .expect(function () {
-          expect(authorisation.isCaseworker.calledOnce).to.be.true //eslint-disable-line
+          expect(authorisation.hasRoles.calledOnce).to.be.true //eslint-disable-line
           expect(stubGetClaimLastUpdated.calledOnce).to.be.true //eslint-disable-line
           expect(stubCheckUserAndLastUpdated.calledOnce).to.be.true //eslint-disable-line
           expect(stubGetIndividualClaimDetails.calledWith('123')).to.be.true //eslint-disable-line
@@ -473,7 +473,7 @@ describe('routes/claim/view-claim', function () {
         .send()
         .expect(400)
         .expect(function () {
-          expect(authorisation.isCaseworker.calledOnce).to.be.true //eslint-disable-line
+          expect(authorisation.hasRoles.calledOnce).to.be.true //eslint-disable-line
           expect(stubGetClaimLastUpdated.calledOnce).to.be.true //eslint-disable-line
           expect(stubCheckUserAndLastUpdated.calledOnce).to.be.true //eslint-disable-line
           expect(stubGetIndividualClaimDetails.calledWith('123')).to.be.true //eslint-disable-line
@@ -519,7 +519,7 @@ describe('routes/claim/view-claim', function () {
         .send()
         .expect(400)
         .expect(function () {
-          expect(authorisation.isCaseworker.calledOnce).to.be.true //eslint-disable-line
+          expect(authorisation.hasRoles.calledOnce).to.be.true //eslint-disable-line
           expect(stubGetClaimLastUpdated.calledOnce).to.be.true //eslint-disable-line
           expect(stubCheckUserAndLastUpdated.calledOnce).to.be.true //eslint-disable-line
           expect(stubGetIndividualClaimDetails.calledWith('123')).to.be.true //eslint-disable-line
@@ -565,7 +565,7 @@ describe('routes/claim/view-claim', function () {
         .send(VALID_DATA_UPDATE_OVERPAYMENT_STATUS)
         .expect(400)
         .expect(function () {
-          expect(authorisation.isCaseworker.calledOnce).to.be.true //eslint-disable-line
+          expect(authorisation.hasRoles.calledOnce).to.be.true //eslint-disable-line
           expect(stubGetClaimLastUpdated.calledOnce).to.be.true //eslint-disable-line
           expect(stubCheckUserAndLastUpdated.calledOnce).to.be.true //eslint-disable-line
           expect(stubGetIndividualClaimDetails.calledWith('123')).to.be.true //eslint-disable-line
@@ -604,7 +604,7 @@ describe('routes/claim/view-claim', function () {
         .send(VALID_DATA_UPDATE_OVERPAYMENT_STATUS)
         .expect(400)
         .expect(function () {
-          expect(authorisation.isCaseworker.calledOnce).to.be.true //eslint-disable-line
+          expect(authorisation.hasRoles.calledOnce).to.be.true //eslint-disable-line
           expect(stubGetClaimLastUpdated.calledOnce).to.be.true //eslint-disable-line
           expect(stubCheckUserAndLastUpdated.calledOnce).to.be.true //eslint-disable-line
           expect(stubGetIndividualClaimDetails.calledWith('123')).to.be.true //eslint-disable-line
@@ -635,7 +635,7 @@ describe('routes/claim/view-claim', function () {
         .send(VALID_DATA_PAYOUT_BARCODE_EXPIRED_CLAIM)
         .expect(400)
         .expect(function () {
-          expect(authorisation.isCaseworker.calledOnce).to.be.true //eslint-disable-line
+          expect(authorisation.hasRoles.calledOnce).to.be.true //eslint-disable-line
           expect(stubGetClaimLastUpdated.calledOnce).to.be.true //eslint-disable-line
           expect(stubCheckUserAndLastUpdated.calledOnce).to.be.true //eslint-disable-line
           expect(stubGetIndividualClaimDetails.calledWith('123')).to.be.true //eslint-disable-line
@@ -721,7 +721,7 @@ describe('routes/claim/view-claim', function () {
         .send(VALID_DATA_CLOSE_ADVANCE_CLAIM)
         .expect(400)
         .expect(function () {
-          expect(authorisation.isCaseworker.calledOnce).to.be.true //eslint-disable-line
+          expect(authorisation.hasRoles.calledOnce).to.be.true //eslint-disable-line
           expect(stubGetClaimLastUpdated.calledOnce).to.be.true //eslint-disable-line
           expect(stubCheckUserAndLastUpdated.calledOnce).to.be.true //eslint-disable-line
           expect(stubGetIndividualClaimDetails.calledWith('123')).to.be.true //eslint-disable-line
@@ -780,7 +780,7 @@ describe('routes/claim/view-claim', function () {
         .send(VALID_DATA_REQUEST_BANK_DETAILS)
         .expect(400)
         .expect(function () {
-          expect(authorisation.isCaseworker.calledOnce).to.be.true //eslint-disable-line
+          expect(authorisation.hasRoles.calledOnce).to.be.true //eslint-disable-line
           expect(stubGetClaimLastUpdated.calledOnce).to.be.true //eslint-disable-line
           expect(stubCheckUserAndLastUpdated.calledOnce).to.be.true //eslint-disable-line
           expect(stubGetIndividualClaimDetails.calledWith('123')).to.be.true //eslint-disable-line
